@@ -19,6 +19,7 @@ Los proyectos están organizados por **lenguaje o framework**:
 |--------|----------|
 | /dotnet/** | Equipo .NET |
 | /angular/** | Equipo Angular |
+**Nota:** En caso de no encontrar una carpeta adecuada para su proyecto, solicitar a algún administrador del repositorio su creación. 
 
 ## 🔐 Flujo de trabajo
 1. ❌ No se permite hacer push directo a main
@@ -33,6 +34,8 @@ Se recomienda usar el siguiente formato:
 feature/tecnologia-descripcion
 
 📄 Reglas generales
+
+- El nombre del proyecto o solución debe tener el siguiente formato: **nombre_acronimo**
 
 - Cada proyecto debe incluir su propio README.md
 
