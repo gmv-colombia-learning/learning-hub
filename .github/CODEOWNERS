@@ -1,5 +1,6 @@
 # Revisores obligatorios para .NET
-/dotnet/**     @aemo1486 @ttcpgmv
+/dotnet/**     @aemo1486
 # Revisores obligatorios para Angular
 /angular/**    @aemo1486 @ttcpgmv
-*            @aemo1486 @ttcpgmv
+/frontend/**   @ttcpgmv
+*              @aemo1486 @ttcpgmv
