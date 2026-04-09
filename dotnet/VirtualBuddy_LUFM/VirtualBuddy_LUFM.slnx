@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/VirtualBuddy.Application/">
+    <Project Path="VirtualBuddy.Application/VirtualBuddy.Application.csproj" />
+  </Folder>
+  <Folder Name="/VirtualBuddy.Domain/">
+    <Project Path="VirtualBuddy.Domain/VirtualBuddy.Domain.csproj" />
+  </Folder>
+  <Folder Name="/VirtualBuddy.Infraestructure/">
+    <Project Path="VirtualBuddy.Infraestructure/VirtualBuddy.Infraestructure.csproj" />
+  </Folder>
+  <Folder Name="/VirtualBuddy.Test/">
+    <Project Path="VirtualBuddy.Test/VirtualBuddy.Test.csproj" />
+  </Folder>
+  <Project Path="VirtualBuddy.Api/VirtualBuddy.Api.csproj" />
+</Solution>

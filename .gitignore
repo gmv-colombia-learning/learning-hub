@@ -2,4 +2,122 @@
 # Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs
+
+# =========================
+# Build results
+# =========================
+bin/
+obj/
+out/
+
+# =========================
+# User-specific files
+# =========================
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# =========================
+# Visual Studio
+# =========================
+.vs/
+*.vcxproj.user
+
+# =========================
+# Rider / JetBrains
+# =========================
+.idea/
+*.sln.iml
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+*.tlog
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# NuGet
+# =========================
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+*.nuget.props
+*.nuget.targets
+
+# (opcional) si usas restore automático
+# no ignores:
+# !packages.config
+
+# =========================
+# Publish
+# =========================
+publish/
+*.publishproj
+
+# =========================
+# ASP.NET / Web
+# =========================
+wwwroot/lib/
+node_modules/
+
+# =========================
+# Secrets / Config local
+# =========================
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# =========================
+# Entity Framework
+# =========================
+*.mdf
+*.ldf
+
+# =========================
+# Coverage / Testing
+# =========================
+TestResults/
+*.coverage
+*.coveragexml
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Azure / deployment
+# =========================
+.azure/
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp
+*.bak
+
+# =========================
+# Resharper
+# =========================
+_ReSharper*/
+*.DotSettings.user
+
+# =========================
+# Others
+# =========================
+*.cache
