@@ -4,6 +4,8 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/app.reducer';
 import * as actions from '../../filter/filter.actions';
 import * as actionsTodo from '../todo.actions';
+import { FilterState } from 'src/app/shared/types/filter-state';
+import { FilterTypes } from 'src/app/shared/enums/filter-type';
 
 @Component({
   selector: 'app-todo-footer',
@@ -11,8 +13,8 @@ import * as actionsTodo from '../todo.actions';
   styleUrls: ['./todo-footer.component.css'],
 })
 export class TodoFooterComponent {
-  public actualFilter: actions.filterState = actions.filterTypes.ALL;
-  public filters: actions.filterState[] = Object.values(actions.filterTypes);
+  public actualFilter: FilterState = FilterTypes.ALL;
+  public filters: FilterState[] = Object.values(FilterTypes);
   public pendings: number = 0;
 
   constructor(private store: Store<AppState>) {}
@@ -23,7 +25,7 @@ export class TodoFooterComponent {
     });
   }
 
-  public selectedFilter(filter: actions.filterState): void {
+  public selectedFilter(filter: FilterState): void {
     this.store.dispatch(actions.setFilter({ filter }));
   }
 

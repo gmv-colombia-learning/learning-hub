@@ -1,14 +1,8 @@
 import { createAction, props } from '@ngrx/store';
 
-export type filterState = 'ALL' | 'COMPLETED' | 'PENDING';
-
-export enum filterTypes {
-  ALL = 'ALL',
-  COMPLETED = 'COMPLETED',
-  PENDING = 'PENDING',
-}
+import { FilterState } from '../shared/types/filter-state';
 
 export const setFilter = createAction(
   '[Filter] Set Filter',
-  props<{ filter: filterState }>()
+  props<{ filter: FilterState }>()
 );

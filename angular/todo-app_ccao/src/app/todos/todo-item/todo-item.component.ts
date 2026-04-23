@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import * as actions from '../todo.actions';
 
 import { AppState } from 'src/app/app.reducer';
-import { Todo } from '../models/todo.model';
+import { Todo } from 'src/app/shared/models/todo.model';
 
 @Component({
   selector: 'app-todo-item',

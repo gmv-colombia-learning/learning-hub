@@ -1,18 +1,19 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import * as actions from '../filter/filter.actions';
-import { Todo } from './models/todo.model';
+import { Todo } from '../shared/models/todo.model';
+import { FilterTypes } from '../shared/enums/filter-type';
+import { FilterState } from '../shared/types/filter-state';
 
 @Pipe({
   name: 'filterPipe'
 })
 export class FilterPipe implements PipeTransform {
 
-public transform(todos: Todo[], filter: actions.filterState): Todo[] {
+public transform(todos: Todo[], filter: FilterState): Todo[] {
     switch (filter) {
-      case actions.filterTypes.COMPLETED:
+      case FilterTypes.COMPLETED:
         return todos.filter(todo => todo.completed);
-      case actions.filterTypes.PENDING:
+      case FilterTypes.PENDING:
         return todos.filter(todo => !todo.completed);
       default:
         return todos;
