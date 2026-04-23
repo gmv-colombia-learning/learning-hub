@@ -7,8 +7,7 @@ import { TodoAddComponent } from './todo-add/todo-add.component';
 import { TodoItemComponent } from './todo-item/todo-item.component';
 import { TodoListComponent } from './todo-list/todo-list.component';
 import { TodoPageComponent } from './todo-page/todo-page.component';
-import { FilterPipe } from './filter.pipe';
-
+import { FilterPipe } from '../shared/pipes/filter.pipe';
 
 
 @NgModule({

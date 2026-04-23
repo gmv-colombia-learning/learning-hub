@@ -1,8 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { Todo } from '../shared/models/todo.model';
-import { FilterTypes } from '../shared/enums/filter-type';
-import { FilterState } from '../shared/types/filter-state';
+import { Todo } from '../models/todo.model';
+import { FilterTypes } from '../enums/filter-type';
+import { FilterState } from '../types/filter-state';
+
 
 @Pipe({
   name: 'filterPipe'
