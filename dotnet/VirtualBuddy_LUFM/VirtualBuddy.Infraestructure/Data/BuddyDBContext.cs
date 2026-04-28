@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using VirtualBuddy.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using VirtualBuddy.Domain.Project;
+using VirtualBuddy.Infraestructure.Identity;
 
 namespace VirtualBuddy.Infraestructure.data
 {
-    public class BuddyDBContext : DbContext
+    public class BuddyDBContext : IdentityDbContext<ApplicationUser>
     {
 
         public DbSet<Project> Projects { get; set; }
