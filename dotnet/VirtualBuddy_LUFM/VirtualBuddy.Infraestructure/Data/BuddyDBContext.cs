@@ -16,5 +16,10 @@ namespace VirtualBuddy.Infraestructure.data
         {
             base.OnModelCreating(modelBuilder);
         }
+
+        internal async Task<object> FindAsync(Func<object, bool> value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

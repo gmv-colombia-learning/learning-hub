@@ -24,4 +24,8 @@
     <ProjectReference Include="..\VirtualBuddy.Domain\VirtualBuddy.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\ProjectPersistence\Specifications\" />
+  </ItemGroup>
+
 </Project>

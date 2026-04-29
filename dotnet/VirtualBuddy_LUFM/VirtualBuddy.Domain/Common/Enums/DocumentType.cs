@@ -1,4 +1,4 @@
-﻿namespace VirtualBuddy.Domain.enums
+﻿namespace VirtualBuddy.Domain.Common.Enums
 {
     public enum DocumentType
     {

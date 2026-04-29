@@ -11,10 +11,14 @@
       }
     },
     "https": {
+      //"commandName": "Project",
+      //"dotnetRunMessages": true,
+      //"launchBrowser": true,
+      //"applicationUrl": "https://localhost:7079;http://localhost:5089",
       "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "https://localhost:7079;http://localhost:5089",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

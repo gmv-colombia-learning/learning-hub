@@ -1,71 +1,53 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using VirtualBuddy.Domain.Common;
 using VirtualBuddy.Infraestructure.data;
 
 namespace VirtualBuddy.Infraestructure.Persistence
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository : IRepository
     {
 
-        protected readonly BuddyDBContext _context;
-        protected readonly DbSet<T> _db;
+        protected readonly BuddyDBContext _dbContext;
 
         public Repository(BuddyDBContext context)
         {
-            _context = context;
-            _db = _context.Set<T>();
+            _dbContext = context;
         }
 
-        public async Task<T> AddAsync(T entity)
-        {
-            var result = await _db.AddAsync(entity);
-            return result.Entity;
-        }
-
-        public void Delete(T entity)
-        {
-            _db.Remove(entity);
-        }
-
-        public async Task<List<T>> GetAllAsync()
-        {
-            return await _db.ToListAsync();
-        }
-
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>>? include = null)
-        {
-            var query = _db.AsQueryable();
-
-            if (include != null)
-            {
-                query = include(query);
-            }
-
-            return await query.FirstOrDefaultAsync(predicate);
-        }
-
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>>? include = null)
-        {
-            var query = _db.AsQueryable();
-
-            if (include != null)
-            {
-                query = include(query);
-            }
-
-            return await query.Where(predicate).ToListAsync();
-        }
-
-        public async Task<T> Update(T entity)
+        public async Task<T> AddAsync<T>(T entity) where T : class
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            _db.Update(entity);
+            await _dbContext.AddAsync(entity);
 
             return entity;
         }
 
+        public async Task<ICollection<T>> AddRangeAsync<T>(ICollection<T> entities) where T : class
+        {
+            await _dbContext.AddRangeAsync(entities);
+            return entities;
+        }
+
+        public T Update<T>(T entity) where T : class
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            _dbContext.Update(entity);
+
+            return entity;
+        }
+
+        public void Delete<T>(T entity) where T : class
+        {
+            _dbContext.Remove(entity);
+        }
+
+        public async Task<ICollection<T>> GetAllAsync<T>() where T : class
+        {
+            return await _dbContext.Set<T>().ToListAsync();
+        }
     }
 }

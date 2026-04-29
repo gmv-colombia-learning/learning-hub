@@ -1,4 +1,4 @@
-﻿using VirtualBuddy.Domain.enums;
+﻿using VirtualBuddy.Domain.Common.Enums;
 
 namespace VirtualBuddy.Domain.Document
 {

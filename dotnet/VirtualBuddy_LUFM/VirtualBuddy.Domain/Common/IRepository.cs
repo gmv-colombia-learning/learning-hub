@@ -1,21 +1,13 @@
-﻿using System.Linq.Expressions;
-
-namespace VirtualBuddy.Domain.Common
+﻿namespace VirtualBuddy.Domain.Common
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository
     {
-        Task<T?> GetAsync(Expression<Func<T, bool>> predicate,
-            Func<IQueryable<T>, IQueryable<T>>? include = null);
+        Task<T> AddAsync<T>(T entity) where T : class;
+        Task<ICollection<T>> AddRangeAsync<T>(ICollection<T> entities) where T : class;
 
-        Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate,
-            Func<IQueryable<T>, IQueryable<T>>? include = null);
+        T Update<T>(T entity) where T : class;
 
-        Task<List<T>> GetAllAsync();
-
-        Task<T> AddAsync(T entity);
-
-        Task<T> Update(T entity);
-
-        void Delete(T entity);
+        void Delete<T>(T entity) where T : class;
+        Task<ICollection<T>> GetAllAsync<T>() where T : class;
     }
 }
