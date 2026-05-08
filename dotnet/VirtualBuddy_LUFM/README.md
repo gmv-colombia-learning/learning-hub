@@ -24,12 +24,13 @@ Inversión de dependencias
 Separación de capas (Domain, Application, Infrastructure, Presentation)
 Independencia de frameworks
 Alta mantenibilidad y testabilidad
+Alta cohesión y bajo acoplamiento
 🧠 Enfoque en DDD
 
 El desarrollo del sistema se tiene proyectado enfocar en los principios de Domain-Driven Design (DDD), lo que implicará:
 
 Modelar el dominio de forma explícita
-Uso de entidades, value objects y agregados
+Uso de entidades, value objects y agregados aunque no es camisa de fuerza, se tiene pensado aplicar estos conceptos para estructurar el dominio de manera coherente
 Lenguaje ubicuo entre negocio y desarrollo
 Encapsulación de la lógica de negocio en el dominio
 

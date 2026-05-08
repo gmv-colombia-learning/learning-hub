@@ -1,8 +1,8 @@
 using VirtualBuddy.Domain.Common.Enums;
 
-namespace VirtualBuddy.Application.DTOs.Response
+namespace VirtualBuddy.Application.DTOs.Request
 {
-    public class GetProjectResponseDto
+    public class UpdateProjectRequestDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

@@ -15,6 +15,18 @@ namespace VirtualBuddy.Infraestructure.data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Project>(entity =>
+            {
+                entity.Property(p => p.Name)
+                    .HasConversion(v => v.Value, v => new Domain.Project.ValueObjects.ProjectName(v))
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(p => p.Description)
+                    .HasConversion(v => v.Value, v => new Domain.Project.ValueObjects.ProjectDescription(v))
+                    .IsRequired();
+            });
         }
 
         internal async Task<object> FindAsync(Func<object, bool> value)

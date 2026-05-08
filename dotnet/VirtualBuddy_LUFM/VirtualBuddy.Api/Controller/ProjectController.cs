@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VirtualBuddy.Application.DTOs.Response;
 using VirtualBuddy.Application.Project;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,34 +19,54 @@ namespace VirtualBuddy.Api.Controller
 
         // GET: api/<ProjectController>
         [HttpGet]
-        public async Task<IEnumerable<Domain.Project.Project>> Get()
+        public async Task<ActionResult<ICollection<GetProjectResponseDto>>> Get()
         {
-            return await _projectFacade.GetProjects.Execute();
+            var projects = await _projectFacade.GetProjects.Execute();
+            return Ok(projects);
         }
 
         // GET api/<ProjectController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<GetProjectResponseDto>> Get(Guid id)
         {
-            return "value";
+            var project = await _projectFacade.GetProjectById.Execute(id);
+            return Ok(project);
         }
 
         // POST api/<ProjectController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<GetProjectResponseDto>> Post([FromBody] Application.DTOs.Request.CreateProjectRequestDto request)
         {
+            var project = await _projectFacade.CreateProject.Execute(request);
+            return Ok(project);
         }
 
         // PUT api/<ProjectController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<GetProjectResponseDto>> Put(Guid id, [FromBody] Application.DTOs.Request.UpdateProjectRequestDto request)
         {
+            if (id != request.Id)
+            {
+                return BadRequest("ID in route does not match ID in request body.");
+            }
+
+            var project = await _projectFacade.UpdateProject.Execute(request);
+            return Ok(project);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<GetProjectResponseDto>> Patch(Guid id, [FromBody] Application.DTOs.Request.PatchProjectRequestDto request)
+        {
+            var project = await _projectFacade.PatchProject.Execute(id, request);
+            return Ok(project);
         }
 
         // DELETE api/<ProjectController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
+            await _projectFacade.DeleteProject.Execute(id);
+            return NoContent();
         }
     }
 }

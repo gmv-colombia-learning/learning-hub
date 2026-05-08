@@ -1,5 +1,6 @@
 using Microsoft.OpenApi;
 using VirtualBuddy.Infraestructure;
+using VirtualBuddy.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddOpenApi();
 
 builder.Services.AddConfigureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

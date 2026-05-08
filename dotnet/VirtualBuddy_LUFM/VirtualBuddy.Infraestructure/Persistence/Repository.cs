@@ -49,5 +49,15 @@ namespace VirtualBuddy.Infraestructure.Persistence
         {
             return await _dbContext.Set<T>().ToListAsync();
         }
+
+        public async Task<T?> GetByIdAsync<T>(params object[] keyValues) where T : class
+        {
+            return await _dbContext.Set<T>().FindAsync(keyValues);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

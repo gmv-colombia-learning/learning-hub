@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VirtualBuddy.Domain.Common;
 using VirtualBuddy.Infraestructure.data;
+using VirtualBuddy.Infraestructure.Persistence;
 
 namespace VirtualBuddy.Infraestructure
 {
@@ -14,6 +16,8 @@ namespace VirtualBuddy.Infraestructure
                     configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("VirtualBuddy.Infraestructure")
                 ));
+
+            services.AddScoped<IRepository, Repository>();
 
             return services;
         }
