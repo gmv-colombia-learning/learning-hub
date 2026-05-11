@@ -1,4 +1,5 @@
 using VirtualBuddy.Domain.Common;
+using VirtualBuddy.Domain.Common.Exceptions;
 
 namespace VirtualBuddy.Application.Project.UseCases
 {
@@ -17,7 +18,7 @@ namespace VirtualBuddy.Application.Project.UseCases
 
             if (project == null)
             {
-                throw new Exception($"Project with ID {id} not found.");
+                throw new NotFoundException(nameof(Domain.Project.Project), id);
             }
 
             _repository.Delete(project);

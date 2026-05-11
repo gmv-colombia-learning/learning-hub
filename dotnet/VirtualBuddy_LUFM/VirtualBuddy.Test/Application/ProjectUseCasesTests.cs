@@ -5,6 +5,7 @@ using VirtualBuddy.Application.DTOs.Request;
 using VirtualBuddy.Application.DTOs.Response;
 using VirtualBuddy.Application.Project.UseCases;
 using VirtualBuddy.Domain.Common;
+using VirtualBuddy.Domain.Common.Exceptions;
 using VirtualBuddy.Domain.Project;
 using Xunit;
 
@@ -158,7 +159,7 @@ namespace VirtualBuddy.Test.Application
 
 
         [Fact]
-        public async Task UpdateProject_WhenProjectDoesNotExist_ShouldThrowException()
+        public async Task UpdateProject_WhenProjectDoesNotExist_ShouldThrowNotFoundException()
         {
             // Arrange
             var projectId = Guid.NewGuid();
@@ -169,7 +170,7 @@ namespace VirtualBuddy.Test.Application
             var act = () => _updateProjectUseCase.Execute(request);
 
             // Assert
-            await act.Should().ThrowAsync<Exception>().WithMessage($"Project with ID {projectId} not found.");
+            await act.Should().ThrowAsync<NotFoundException>();
         }
     }
 }

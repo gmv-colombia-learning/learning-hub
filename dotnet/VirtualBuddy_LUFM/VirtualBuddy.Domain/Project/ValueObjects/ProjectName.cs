@@ -1,4 +1,5 @@
 using VirtualBuddy.Domain.Common;
+using VirtualBuddy.Domain.Common.Exceptions;
 
 namespace VirtualBuddy.Domain.Project.ValueObjects
 {
@@ -9,10 +10,10 @@ namespace VirtualBuddy.Domain.Project.ValueObjects
         public ProjectName(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Project name is required.");
+                throw new ValidationException("Project name is required.");
 
             if (value.Length > 100)
-                throw new ArgumentException("Project name cannot exceed 100 characters.");
+                throw new ValidationException("Project name cannot exceed 100 characters.");
 
             Value = value;
         }

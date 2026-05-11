@@ -1,4 +1,5 @@
 using VirtualBuddy.Domain.Common;
+using VirtualBuddy.Domain.Common.Exceptions;
 
 namespace VirtualBuddy.Domain.Project.ValueObjects
 {
@@ -9,10 +10,10 @@ namespace VirtualBuddy.Domain.Project.ValueObjects
         public ProjectDescription(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Project description is required.");
+                throw new ValidationException("Project description is required.");
 
             if (value.Length < 10)
-                throw new ArgumentException("Project description must be at least 10 characters long.");
+                throw new ValidationException("Project description must be at least 10 characters long.");
 
             Value = value;
         }

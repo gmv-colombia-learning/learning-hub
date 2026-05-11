@@ -9,7 +9,9 @@
 
         void Delete<T>(T entity) where T : class;
         Task<ICollection<T>> GetAllAsync<T>() where T : class;
+        Task<ICollection<T>> GetAllWithSpecAsync<T>(ISpecification<T> spec) where T : class;
         Task<T?> GetByIdAsync<T>(params object[] keyValues) where T : class;
+        Task<T?> GetEntityWithSpecAsync<T>(ISpecification<T> spec) where T : class;
         Task SaveChangesAsync();
     }
 }

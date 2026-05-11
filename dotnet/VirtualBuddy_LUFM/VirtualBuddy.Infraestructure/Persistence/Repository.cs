@@ -50,9 +50,24 @@ namespace VirtualBuddy.Infraestructure.Persistence
             return await _dbContext.Set<T>().ToListAsync();
         }
 
+        public async Task<ICollection<T>> GetAllWithSpecAsync<T>(ISpecification<T> spec) where T : class
+        {
+            return await ApplySpecification(spec).ToListAsync();
+        }
+
         public async Task<T?> GetByIdAsync<T>(params object[] keyValues) where T : class
         {
             return await _dbContext.Set<T>().FindAsync(keyValues);
+        }
+
+        public async Task<T?> GetEntityWithSpecAsync<T>(ISpecification<T> spec) where T : class
+        {
+            return await ApplySpecification(spec).FirstOrDefaultAsync();
+        }
+
+        private IQueryable<T> ApplySpecification<T>(ISpecification<T> spec) where T : class
+        {
+            return SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>().AsQueryable(), spec);
         }
 
         public async Task SaveChangesAsync()

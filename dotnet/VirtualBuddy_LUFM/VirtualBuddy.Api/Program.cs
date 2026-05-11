@@ -1,6 +1,7 @@
 using Microsoft.OpenApi;
 using VirtualBuddy.Infraestructure;
 using VirtualBuddy.Application;
+using VirtualBuddy.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,8 @@ builder.Services.AddConfigureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

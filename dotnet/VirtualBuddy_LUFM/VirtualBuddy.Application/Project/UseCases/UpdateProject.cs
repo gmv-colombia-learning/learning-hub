@@ -2,6 +2,7 @@ using MapsterMapper;
 using VirtualBuddy.Application.DTOs.Request;
 using VirtualBuddy.Application.DTOs.Response;
 using VirtualBuddy.Domain.Common;
+using VirtualBuddy.Domain.Common.Exceptions;
 
 namespace VirtualBuddy.Application.Project.UseCases
 {
@@ -22,7 +23,7 @@ namespace VirtualBuddy.Application.Project.UseCases
 
             if (project == null)
             {
-                throw new Exception($"Project with ID {request.Id} not found.");
+                throw new NotFoundException(nameof(Domain.Project.Project), request.Id);
             }
 
             // Actualización de info básica usando comportamiento del dominio

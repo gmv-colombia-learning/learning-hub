@@ -1,6 +1,8 @@
 using MapsterMapper;
 using VirtualBuddy.Application.DTOs.Response;
 using VirtualBuddy.Domain.Common;
+using VirtualBuddy.Domain.Common.Exceptions;
+using VirtualBuddy.Domain.Project.Specifications;
 
 namespace VirtualBuddy.Application.Project.UseCases
 {
@@ -17,11 +19,12 @@ namespace VirtualBuddy.Application.Project.UseCases
 
         public async Task<GetProjectResponseDto> Execute(Guid id)
         {
-            var project = await _repository.GetByIdAsync<Domain.Project.Project>(id);
+            var spec = new ProjectWithDetailsSpecification(id);
+            var project = await _repository.GetEntityWithSpecAsync(spec);
 
             if (project == null)
             {
-                throw new Exception($"Project with ID {id} not found.");
+                throw new NotFoundException(nameof(Domain.Project.Project), id);
             }
 
             return _mapper.Map<GetProjectResponseDto>(project);

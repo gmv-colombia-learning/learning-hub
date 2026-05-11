@@ -1,0 +1,5 @@
+Detalle del producto:
+
+Para este componente o parte del proyecto tena en cuenta la imagen DetailProject y valide que hace falta desarrollar para tener esa feature completa, aspectos a tener en cuenta:
+
+- Un proyecto tiene lista de tecnologías, un equipo de trabajo, pero también debe tener una sección donde hay información genereda por ia, como arquitectura todo la informacion que ia puede generar por los documentos relacionados, incluso en un futuro el objetivo es conectarlo al repositorio git, para tener más contexto tecnico del proyecto, recordar que se va usar RAG para este desarrollo donde hay fuentes de la compañía para enriquecer la información del proyecto y la ia no alucine o invente dando espacio para información incorrecto o inconsistente.
