@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using VirtualBuddy.Application.Project;
 using VirtualBuddy.Application.Project.UseCases;
+using VirtualBuddy.Application.Auth;
+using VirtualBuddy.Application.Auth.UseCases;
 
 namespace VirtualBuddy.Application
 {
@@ -34,6 +36,10 @@ namespace VirtualBuddy.Application
             services.AddScoped<PatchProject>();
             services.AddScoped<DeleteProject>();
             services.AddScoped<ProjectFacade>();
+
+            services.AddScoped<Login>();
+            services.AddScoped<Register>();
+            services.AddScoped<AuthFacade>();
 
             return services;
         }

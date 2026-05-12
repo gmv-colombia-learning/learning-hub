@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using VirtualBuddy.Application.DTOs.Response;
 using VirtualBuddy.Application.Project;
 
@@ -6,6 +7,7 @@ using VirtualBuddy.Application.Project;
 
 namespace VirtualBuddy.Api.Controller
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -17,32 +19,72 @@ namespace VirtualBuddy.Api.Controller
             _projectFacade = projectFacade;
         }
 
-        // GET: api/<ProjectController>
+        /// <summary>
+        /// Retrieves all projects with their details.
+        /// </summary>
+        /// <returns>A collection of projects.</returns>
+        /// <response code="200">Returns the list of projects.</response>
+        /// <response code="401">If the user is not authenticated.</response>
         [HttpGet]
+        [ProducesResponseType(typeof(ICollection<GetProjectResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ICollection<GetProjectResponseDto>>> Get()
         {
             var projects = await _projectFacade.GetProjects.Execute();
             return Ok(projects);
         }
 
-        // GET api/<ProjectController>/5
+        /// <summary>
+        /// Retrieves a specific project by its ID.
+        /// </summary>
+        /// <param name="id">The project unique identifier.</param>
+        /// <returns>The project details.</returns>
+        /// <response code="200">Returns the project.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="404">If the project is not found.</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(GetProjectResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<GetProjectResponseDto>> Get(Guid id)
         {
             var project = await _projectFacade.GetProjectById.Execute(id);
             return Ok(project);
         }
 
-        // POST api/<ProjectController>
+        /// <summary>
+        /// Creates a new project.
+        /// </summary>
+        /// <param name="request">The project creation data.</param>
+        /// <returns>The created project details.</returns>
+        /// <response code="200">Project created successfully.</response>
+        /// <response code="400">If validation fails.</response>
+        /// <response code="401">If the user is not authenticated.</response>
         [HttpPost]
+        [ProducesResponseType(typeof(GetProjectResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<GetProjectResponseDto>> Post([FromBody] Application.DTOs.Request.CreateProjectRequestDto request)
         {
             var project = await _projectFacade.CreateProject.Execute(request);
             return Ok(project);
         }
 
-        // PUT api/<ProjectController>/5
+        /// <summary>
+        /// Updates an existing project completely.
+        /// </summary>
+        /// <param name="id">The project unique identifier.</param>
+        /// <param name="request">The project update data.</param>
+        /// <returns>The updated project details.</returns>
+        /// <response code="200">Project updated successfully.</response>
+        /// <response code="400">If ID mismatch or validation fails.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="404">If the project is not found.</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(GetProjectResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<GetProjectResponseDto>> Put(Guid id, [FromBody] Application.DTOs.Request.UpdateProjectRequestDto request)
         {
             if (id != request.Id)
@@ -54,15 +96,37 @@ namespace VirtualBuddy.Api.Controller
             return Ok(project);
         }
 
+        /// <summary>
+        /// Partially updates an existing project.
+        /// </summary>
+        /// <param name="id">The project unique identifier.</param>
+        /// <param name="request">The patch data.</param>
+        /// <returns>The updated project details.</returns>
+        /// <response code="200">Project patched successfully.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="404">If the project is not found.</response>
         [HttpPatch("{id}")]
+        [ProducesResponseType(typeof(GetProjectResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<GetProjectResponseDto>> Patch(Guid id, [FromBody] Application.DTOs.Request.PatchProjectRequestDto request)
         {
             var project = await _projectFacade.PatchProject.Execute(id, request);
             return Ok(project);
         }
 
-        // DELETE api/<ProjectController>/5
+        /// <summary>
+        /// Deletes a project.
+        /// </summary>
+        /// <param name="id">The project unique identifier.</param>
+        /// <returns>No content.</returns>
+        /// <response code="204">Project deleted successfully.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="404">If the project is not found.</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _projectFacade.DeleteProject.Execute(id);

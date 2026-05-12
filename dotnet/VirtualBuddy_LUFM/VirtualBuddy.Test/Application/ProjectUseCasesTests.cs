@@ -42,7 +42,7 @@ namespace VirtualBuddy.Test.Application
             var projectId = existingProject.Id;
             var responseDto = new GetProjectResponseDto { Id = projectId, Name = "Test Project" };
 
-            _repositoryMock.Setup(r => r.GetByIdAsync<Project>(projectId)).ReturnsAsync(existingProject);
+            _repositoryMock.Setup(r => r.GetEntityWithSpecAsync(It.IsAny<ISpecification<Project>>())).ReturnsAsync(existingProject);
             _mapperMock.Setup(m => m.Map<GetProjectResponseDto>(existingProject)).Returns(responseDto);
 
             // Act
@@ -52,7 +52,7 @@ namespace VirtualBuddy.Test.Application
             result.Should().NotBeNull();
             result.Id.Should().Be(projectId);
             result.Name.Should().Be("Test Project");
-            _repositoryMock.Verify(r => r.GetByIdAsync<Project>(projectId), Times.Once);
+            _repositoryMock.Verify(r => r.GetEntityWithSpecAsync(It.IsAny<ISpecification<Project>>()), Times.Once);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace VirtualBuddy.Test.Application
             var projects = new List<Project> { project };
             var dtos = new List<GetProjectResponseDto> { new GetProjectResponseDto { Id = project.Id, Name = "Test Project" } };
 
-            _repositoryMock.Setup(r => r.GetAllAsync<Project>()).ReturnsAsync(projects);
+            _repositoryMock.Setup(r => r.GetAllWithSpecAsync(It.IsAny<ISpecification<Project>>())).ReturnsAsync(projects);
             _mapperMock.Setup(m => m.Map<ICollection<GetProjectResponseDto>>(projects)).Returns(dtos);
 
             // Act
@@ -73,7 +73,7 @@ namespace VirtualBuddy.Test.Application
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
             result.First().Name.Should().Be("Test Project");
-            _repositoryMock.Verify(r => r.GetAllAsync<Project>(), Times.Once);
+            _repositoryMock.Verify(r => r.GetAllWithSpecAsync(It.IsAny<ISpecification<Project>>()), Times.Once);
         }
 
         [Fact]

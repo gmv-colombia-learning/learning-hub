@@ -2,12 +2,17 @@ using Microsoft.OpenApi;
 using VirtualBuddy.Infraestructure;
 using VirtualBuddy.Application;
 using VirtualBuddy.Api.Middleware;
+using VirtualBuddy.Infraestructure.Data;
+using VirtualBuddy.Infraestructure.Identity;
+using VirtualBuddy.Infraestructure.data;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -24,7 +29,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
@@ -32,6 +37,16 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "Ingrese: Bearer {token}"
+    };
+
+    options.AddSecurityDefinition("Bearer", securityScheme);
+
+    options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+    {
+        { 
+            new OpenApiSecuritySchemeReference("Bearer"), 
+            new List<string>() 
+        }
     });
 
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -64,8 +79,26 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Seed database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<BuddyDBContext>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        await DbInitializer.SeedAsync(context, userManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
 
 app.Run();
