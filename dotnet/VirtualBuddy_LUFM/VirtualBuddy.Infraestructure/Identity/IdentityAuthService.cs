@@ -105,7 +105,7 @@ namespace VirtualBuddy.Infraestructure.Identity
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(expiryInMinutes),
+                expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
                 signingCredentials: creds
             );
 

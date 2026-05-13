@@ -22,6 +22,9 @@ namespace VirtualBuddy.Test.Application
         private readonly PatchProject _patchProjectUseCase;
         private readonly DeleteProject _deleteProjectUseCase;
 
+        private readonly Mock<IRepository> _repositoryGenericMock;
+        private readonly AddTechnologyToProject _addTechnologyToProjectUseCase;
+
         public ProjectUseCasesTests()
         {
             _repositoryMock = new Mock<IRepository>();
@@ -32,6 +35,10 @@ namespace VirtualBuddy.Test.Application
             _updateProjectUseCase = new UpdateProject(_repositoryMock.Object, _mapperMock.Object);
             _patchProjectUseCase = new PatchProject(_repositoryMock.Object, _mapperMock.Object);
             _deleteProjectUseCase = new DeleteProject(_repositoryMock.Object);
+
+            // AddTechnologyToProject dependencies
+            _repositoryGenericMock = new Mock<IRepository>();
+            _addTechnologyToProjectUseCase = new AddTechnologyToProject(_repositoryGenericMock.Object);
         }
 
         [Fact]
@@ -172,5 +179,89 @@ namespace VirtualBuddy.Test.Application
             // Assert
             await act.Should().ThrowAsync<NotFoundException>();
         }
+        [Fact]
+        public async Task AddTechnologyToProject_SuccessfulAssociation_ShouldReturnSuccess()
+        {
+            // Arrange
+            var projectId = Guid.NewGuid();
+            var technologyId = Guid.NewGuid();
+            var tech = new VirtualBuddy.Domain.Project.Entities.Technology("C#");
+            var project = new VirtualBuddy.Domain.Project.Project(
+                new VirtualBuddy.Domain.Project.ValueObjects.ProjectName("p1"),
+                new VirtualBuddy.Domain.Project.ValueObjects.ProjectDescription("descdescdesc"),
+                "url");
+
+            _repositoryGenericMock.Setup(r => r.GetEntityWithSpecAsync<VirtualBuddy.Domain.Project.Project>(It.IsAny<VirtualBuddy.Domain.Project.Specifications.ProjectWithDetailsSpecification>())).ReturnsAsync(project);
+            _repositoryGenericMock.Setup(r => r.GetByIdAsync<VirtualBuddy.Domain.Project.Entities.Technology>(technologyId)).ReturnsAsync(tech);
+            _repositoryGenericMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            var dto = new AddTechnologyRequestDto { TechnologyId = technologyId };
+            // Act
+            var result = await _addTechnologyToProjectUseCase.ExecuteAsync(projectId, dto);
+
+            // Assert
+            result.Succeeded.Should().BeTrue();
+            result.Error.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task AddTechnologyToProject_ProjectNotFound_ShouldReturnFailure()
+        {
+            var projectId = Guid.NewGuid();
+            var technologyId = Guid.NewGuid();
+            _repositoryGenericMock.Setup(r => r.GetEntityWithSpecAsync<VirtualBuddy.Domain.Project.Project>(It.IsAny<VirtualBuddy.Domain.Project.Specifications.ProjectWithDetailsSpecification>())).ReturnsAsync((VirtualBuddy.Domain.Project.Project)null);
+            var dto = new AddTechnologyRequestDto { TechnologyId = technologyId };
+            // Act
+            var result = await _addTechnologyToProjectUseCase.ExecuteAsync(projectId, dto);
+            // Assert
+            result.Succeeded.Should().BeFalse();
+            result.Error.Should().Be("Project not found");
+        }
+
+        [Fact]
+        public async Task AddTechnologyToProject_TechnologyNotFound_ShouldReturnFailure()
+        {
+            var projectId = Guid.NewGuid();
+            var technologyId = Guid.NewGuid();
+            var project = new VirtualBuddy.Domain.Project.Project(
+                new VirtualBuddy.Domain.Project.ValueObjects.ProjectName("p1"),
+                new VirtualBuddy.Domain.Project.ValueObjects.ProjectDescription("descdescdesc"),
+                "url");
+            _repositoryGenericMock.Setup(r => r.GetEntityWithSpecAsync<VirtualBuddy.Domain.Project.Project>(It.IsAny<VirtualBuddy.Domain.Project.Specifications.ProjectWithDetailsSpecification>())).ReturnsAsync(project);
+            _repositoryGenericMock.Setup(r => r.GetByIdAsync<VirtualBuddy.Domain.Project.Entities.Technology>(technologyId)).ReturnsAsync((VirtualBuddy.Domain.Project.Entities.Technology)null);
+            var dto = new AddTechnologyRequestDto { TechnologyId = technologyId };
+            // Act
+            var result = await _addTechnologyToProjectUseCase.ExecuteAsync(projectId, dto);
+            // Assert
+            result.Succeeded.Should().BeFalse();
+            result.Error.Should().Be("Technology not found");
+        }
+
+        [Fact]
+        public async Task AddTechnologyToProject_TechnologyAlreadyAssociated_ShouldReturnFailure()
+        {
+            var projectId = Guid.NewGuid();
+            var technologyId = Guid.NewGuid();
+            // Creamos la tech con el GUID correcto
+            var tech = new VirtualBuddy.Domain.Project.Entities.Technology("C#");
+            typeof(VirtualBuddy.Domain.Project.Entities.Technology)
+                .GetProperty("Id")
+                .SetValue(tech, technologyId);
+
+            var project = new VirtualBuddy.Domain.Project.Project(
+                new VirtualBuddy.Domain.Project.ValueObjects.ProjectName("p1"),
+                new VirtualBuddy.Domain.Project.ValueObjects.ProjectDescription("descdescdesc"),
+                "url");
+            project.AddTechnology(tech);
+            _repositoryGenericMock.Setup(r => r.GetEntityWithSpecAsync<VirtualBuddy.Domain.Project.Project>(It.IsAny<VirtualBuddy.Domain.Project.Specifications.ProjectWithDetailsSpecification>())).ReturnsAsync(project);
+            _repositoryGenericMock.Setup(r => r.GetByIdAsync<VirtualBuddy.Domain.Project.Entities.Technology>(technologyId)).ReturnsAsync(tech);
+            var dto = new AddTechnologyRequestDto { TechnologyId = technologyId };
+            // Act
+            var result = await _addTechnologyToProjectUseCase.ExecuteAsync(projectId, dto);
+            // Assert
+            result.Succeeded.Should().BeFalse();
+            result.Error.Should().Be("Technology already associated with this project");
+        }
     }
 }
+

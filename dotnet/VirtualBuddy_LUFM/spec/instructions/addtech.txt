@@ -1,0 +1,31 @@
+# Pending Work: Add Technology to Project Feature
+
+This document serves as a handoff for the next session to complete the implementation of the "Add Technology to Project" feature.
+
+## Current Progress
+- **Domain**: `Project` aggregate and `Technology` entity are fully implemented with `AddTechnology` methods and many-to-many relationship.
+- **Infrastructure**: Database schema includes `ProjectTechnologies` join table and `Technologies` table. Seed data is present in `DbInitializer.cs`.
+- **Plan**: A detailed implementation plan has been created and approved.
+
+## Next Steps (Implementation Phase)
+
+### 1. Application Layer
+- [ ] Create `VirtualBuddy.Application\DTOs\Request\AddTechnologyRequestDto.cs` with `Guid TechnologyId`.
+- [ ] Create `VirtualBuddy.Application\Project\UseCases\AddTechnologyToProject.cs`:
+    - Use `ProjectWithDetailsSpecification` to load the project with its technologies.
+    - Fetch the `Technology` entity from the repository.
+    - Call `project.AddTechnology(technology)`.
+    - Save changes.
+- [ ] Create `VirtualBuddy.Application\Project\UseCases\GetTechnologies.cs` to list all available technologies for the catalog.
+- [ ] Update `ProjectFacade.cs` and `ApplicationConfig.cs` to register the new use cases.
+
+### 2. API Layer
+- [ ] Update `VirtualBuddy.Api\Controller\ProjectController.cs` to add `POST /api/project/{id}/technologies`.
+- [ ] Create `VirtualBuddy.Api\Controller\TechnologyController.cs` with `GET /api/technology`.
+
+### 3. Testing
+- [ ] Add unit tests in `VirtualBuddy.Test\Application\ProjectUseCasesTests.cs`.
+- [ ] Verify via Swagger.
+
+## Context Summary
+The goal is to allow users to pick technologies from a catalog and associate them with projects, as seen in the `spec/ui/formCrearProject.png` and `DetailProject.png` specifications.

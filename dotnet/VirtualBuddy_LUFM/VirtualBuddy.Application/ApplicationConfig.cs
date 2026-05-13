@@ -6,6 +6,8 @@ using VirtualBuddy.Application.Project;
 using VirtualBuddy.Application.Project.UseCases;
 using VirtualBuddy.Application.Auth;
 using VirtualBuddy.Application.Auth.UseCases;
+using VirtualBuddy.Application.Document;
+using VirtualBuddy.Application.Document.UseCases;
 
 namespace VirtualBuddy.Application
 {
@@ -35,11 +37,19 @@ namespace VirtualBuddy.Application
             services.AddScoped<UpdateProject>();
             services.AddScoped<PatchProject>();
             services.AddScoped<DeleteProject>();
+            services.AddScoped<AddTechnologyToProject>();
+            services.AddScoped<GetTechnologies>();
             services.AddScoped<ProjectFacade>();
 
             services.AddScoped<Login>();
             services.AddScoped<Register>();
             services.AddScoped<AuthFacade>();
+
+            // Documentos
+            services.AddScoped<UploadDocument>();
+            services.AddScoped<GetProjectDocuments>();
+            services.AddScoped<DeleteDocument>();
+            services.AddScoped<DocumentFacade>();
 
             return services;
         }

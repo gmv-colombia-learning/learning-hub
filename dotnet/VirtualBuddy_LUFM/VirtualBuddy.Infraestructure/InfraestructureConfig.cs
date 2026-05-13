@@ -10,6 +10,7 @@ using VirtualBuddy.Domain.Common;
 using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Identity;
 using VirtualBuddy.Infraestructure.Persistence;
+using VirtualBuddy.Infraestructure.Services;
 
 namespace VirtualBuddy.Infraestructure
 {
@@ -41,9 +42,12 @@ namespace VirtualBuddy.Infraestructure
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
             {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false; // Ajustar a true en producción si es necesario
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -52,12 +56,17 @@ namespace VirtualBuddy.Infraestructure
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
                     ValidAudience = jwtSettings.GetValue<string>("Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!)),
+                    ClockSkew = TimeSpan.Zero // Eliminar el margen de 5 minutos por defecto
                 };
             });
 
             services.AddScoped<IRepository, Repository>();
             services.AddScoped<IAuthService, IdentityAuthService>();
+
+            // Configuración de Supabase
+            services.Configure<SupabaseSettings>(configuration.GetSection("Supabase"));
+            services.AddSingleton<IFileStorageService, SupabaseStorageService>();
 
             return services;
         }

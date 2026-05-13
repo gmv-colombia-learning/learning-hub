@@ -79,6 +79,24 @@ Se siguen estrictamente principios de ingeniería de software:
   - Se deben utilizar Value Objects para tipos de datos que posean lógica de validación o reglas de negocio (ej. nombres, emails, descripciones).
   - Esto permite centralizar las validaciones y asegurar que las entidades siempre operen con datos válidos, reduciendo la carga de validación manual en los constructores de las entidades.
 - **Modo Plan**: Para tareas complejas, el agente usará la herramienta `enter_plan_mode` para diseñar la solución antes de ejecutarla.
+- **Integridad de Funcionalidades**: El agente **NUNCA** debe eliminar, simplificar o comentar configuraciones o funcionalidades existentes (ej: seguridad en Swagger, filtros, middlewares) a menos que el usuario lo solicite explícitamente. La prioridad es arreglar sin destruir lo que ya funciona.
+
+---
+
+## 🛡️ Principios de Ingeniería y Calidad de Código
+
+Para asegurar la mantenibilidad y escalabilidad del proyecto, se deben seguir estrictamente estos principios:
+
+### 🚫 Antipatrones a Evitar:
+- **God Object (Objeto Dios)**: Evitar entidades o clases que acumulen demasiada responsabilidad o lógica de diferentes dominios. Las entidades deben ser cohesivas y enfocadas.
+- **Anemic Domain Model**: El dominio no debe ser solo una colección de getters y setters. La lógica de negocio y las validaciones deben residir en las entidades y objetos de valor.
+- **Primitive Obsession**: Usar Value Objects para representar conceptos del dominio en lugar de tipos primitivos (string, int) cuando exista lógica asociada.
+
+### ✅ Buenas Prácticas:
+- **Alta Cohesión y Bajo Acoplamiento**: Cada módulo o clase debe tener una responsabilidad única y estar mínimamente vinculado a otros.
+- **Agregados Pequeños**: Preferir agregados pequeños y desacoplados sobre estructuras jerárquicas gigantes. Las relaciones entre agregados se deben manejar preferiblemente mediante IDs (Guid), no referencias directas de objetos, para facilitar la escalabilidad y el rendimiento.
+- **Fail-Fast**: Validar los datos lo antes posible (en constructores o Value Objects) para evitar estados inconsistentes.
+- **KISS & YAGNI**: Mantener la solución simple y no implementar funcionalidades "por si acaso" que no han sido solicitadas.
 
 ---
 

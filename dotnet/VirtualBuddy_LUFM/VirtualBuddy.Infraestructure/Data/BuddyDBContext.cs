@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using VirtualBuddy.Domain.Project;
 using VirtualBuddy.Domain.Project.Entities;
+using VirtualBuddy.Domain.Document;
 using VirtualBuddy.Infraestructure.Identity;
 
 namespace VirtualBuddy.Infraestructure.data
@@ -11,12 +12,26 @@ namespace VirtualBuddy.Infraestructure.data
         public DbSet<Project> Projects { get; set; }
         public DbSet<Technology> Technologies { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
         public BuddyDBContext(DbContextOptions<BuddyDBContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Document>(entity =>
+            {
+                entity.ToTable("Documents");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.StoragePath).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.PublicUrl).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.ContentType).HasMaxLength(100);
+                entity.Property(e => e.Size).HasMaxLength(50);
+                
+                entity.HasIndex(e => e.ProjectId);
+            });
 
             modelBuilder.Entity<Project>(entity =>
             {

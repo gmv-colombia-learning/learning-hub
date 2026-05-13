@@ -7,7 +7,7 @@ using VirtualBuddy.Application.Project;
 
 namespace VirtualBuddy.Api.Controller
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -17,6 +17,29 @@ namespace VirtualBuddy.Api.Controller
         public ProjectController(ProjectFacade projectFacade)
         {
             _projectFacade = projectFacade;
+        }
+
+        /// <summary>
+        /// Adds a technology to a project.
+        /// </summary>
+        /// <param name="id">The project unique identifier.</param>
+        /// <param name="request">The technology ID to add.</param>
+        /// <returns>Result of the operation</returns>
+        /// <response code="200">Technology added successfully.</response>
+        /// <response code="400">Technology already associated or request invalid.</response>
+        /// <response code="404">Project or Technology not found.</response>
+        [HttpPost("{id}/technologies")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddTechnology(Guid id, [FromBody] VirtualBuddy.Application.DTOs.Request.AddTechnologyRequestDto request)
+        {
+            var result = await _projectFacade.AddTechnologyToProject.ExecuteAsync(id, request);
+            if (result.Succeeded)
+                return Ok();
+            if (result.Error == "Project not found" || result.Error == "Technology not found")
+                return NotFound(new ProblemDetails { Title = "Not Found", Detail = result.Error });
+            return BadRequest(new ProblemDetails { Title = "Business Rule Violation", Detail = result.Error });
         }
 
         /// <summary>
