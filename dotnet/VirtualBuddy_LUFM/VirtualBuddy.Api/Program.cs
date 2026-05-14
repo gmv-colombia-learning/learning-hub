@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi;
-using VirtualBuddy.Infraestructure;
-using VirtualBuddy.Application;
 using VirtualBuddy.Api.Middleware;
+using VirtualBuddy.Application;
+using VirtualBuddy.Infraestructure;
+using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Data;
 using VirtualBuddy.Infraestructure.Identity;
-using VirtualBuddy.Infraestructure.data;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,9 +43,9 @@ builder.Services.AddSwaggerGen(options =>
 
     options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
     {
-        { 
-            new OpenApiSecuritySchemeReference("Bearer"), 
-            new List<string>() 
+        {
+            new OpenApiSecuritySchemeReference("Bearer"),
+            new List<string>()
         }
     });
 
@@ -58,7 +58,7 @@ builder.Services.AddSwaggerGen(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddConfigureServices(builder.Configuration);
+builder.Services.AddInfraConfigureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();

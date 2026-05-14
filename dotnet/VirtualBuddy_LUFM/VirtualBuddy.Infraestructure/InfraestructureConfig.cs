@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.SemanticKernel;
 using System.Text;
 using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Domain.Common;
@@ -11,12 +12,13 @@ using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Identity;
 using VirtualBuddy.Infraestructure.Persistence;
 using VirtualBuddy.Infraestructure.Services;
+using VirtualBuddy.Infraestructure.Util;
 
 namespace VirtualBuddy.Infraestructure
 {
     public static class InfraestructureConfig
     {
-        public static IServiceCollection AddConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfraConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<BuddyDBContext>(options =>
                 options.UseNpgsql(
@@ -67,6 +69,41 @@ namespace VirtualBuddy.Infraestructure
             // Configuración de Supabase
             services.Configure<SupabaseSettings>(configuration.GetSection("Supabase"));
             services.AddSingleton<IFileStorageService, SupabaseStorageService>();
+
+            // AI Infrastructure
+            services.AddScoped<IDocumentParser, DocumentParserService>();
+            services.AddScoped<IKnowledgeBaseService, PostgresKnowledgeBaseService>();
+            services.AddScoped<IAIService, SemanticKernelAIService>();
+
+
+            // Semantic Kernel configuration with Ollama
+
+            services.AddHttpClient("ollama", client =>
+            {
+                var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
+                client.BaseAddress = new Uri(ollamaEndpoint);
+                client.Timeout = TimeSpan.FromMinutes(10);
+            });
+
+            services.AddScoped(sp =>
+            {
+
+                var builder = Kernel.CreateBuilder();
+
+                var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
+
+                builder.AddOllamaChatCompletion(
+                    modelId: configuration["Ollama:ChatModel"] ?? "llama3",
+                    endpoint: new Uri(ollamaEndpoint)
+                );
+
+                builder.AddOllamaEmbeddingGenerator(
+                    modelId: configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text",
+                    endpoint: new Uri(ollamaEndpoint)
+                );
+
+                return builder.Build();
+            });
 
             return services;
         }

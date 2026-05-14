@@ -50,7 +50,7 @@ namespace VirtualBuddy.Infraestructure.Data
             }
             else
             {
-                adminUser = await userManager.FindByEmailAsync(adminUser.Email);
+                adminUser = await userManager.FindByEmailAsync(adminUser.Email) ?? adminUser;
             }
 
             // 3. Seed Projects
@@ -85,14 +85,23 @@ namespace VirtualBuddy.Infraestructure.Data
                 projects[0].AddTechnology(technologies.First(t => t.Name == ".NET 10"));
                 projects[0].AddTechnology(technologies.First(t => t.Name == "React"));
                 projects[0].AddTechnology(technologies.First(t => t.Name == "OpenAI / RAG"));
-                projects[0].AddMember(new ProjectMember(Guid.Parse(adminUser.Id), adminUser.FullName, "Lead Architect"));
+                
+                if (adminUser != null && adminUser.Id != null)
+                {
+                    projects[0].AddMember(new ProjectMember(Guid.Parse(adminUser.Id), adminUser.FullName, "Lead Architect"));
+                }
+                
                 projects[0].SetArchitectureInfo("Clean Architecture with DDD and RAG integration for contextual AI assistance.");
 
                 // Relationships for second project
                 projects[1].AddTechnology(technologies.First(t => t.Name == "Docker"));
                 projects[1].AddTechnology(technologies.First(t => t.Name == "Azure"));
                 projects[1].AddTechnology(technologies.First(t => t.Name == "EF Core"));
-                projects[1].AddMember(new ProjectMember(Guid.Parse(adminUser.Id), adminUser.FullName, "Senior Developer"));
+                
+                if (adminUser != null && adminUser.Id != null)
+                {
+                    projects[1].AddMember(new ProjectMember(Guid.Parse(adminUser.Id), adminUser.FullName, "Senior Developer"));
+                }
 
                 await context.Projects.AddRangeAsync(projects);
                 await context.SaveChangesAsync();
