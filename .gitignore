@@ -122,3 +122,4 @@ _ReSharper*/
 # Others
 # =========================
 *.cache
+/dotnet/VirtualBuddy_LUFM/VirtualBuddy.Api/appsettings.json
