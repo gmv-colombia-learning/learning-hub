@@ -1,0 +1,66 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Agregar Ingreso / Egreso</h4>
+        <p class="card-description">Especifique el amount y el type</p>
+
+        <form [formGroup]="incomeForm" (ngSubmit)="save()">
+          <div class="form-group">
+            <label>Descripción</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Descripción"
+              formControlName="description"
+              name="description"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Monto</label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Monto"
+              formControlName="amount"
+              name="amount"
+            />
+            <p>Debe de ser un amount positivo</p>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo</label>
+            <br />
+            <button
+              type="button"
+              (click)="
+                type =
+                  type === movementType.INCOME
+                    ? movementType.EXPENSE
+                    : movementType.INCOME
+              "
+              class="btn btn-block"
+              [ngClass]="
+                type === movementType.INCOME ? 'btn-primary' : 'btn-warning'
+              "
+            >
+              {{ type === movementType.INCOME ? "Ingreso" : "Egreso" }}
+            </button>
+          </div>
+
+          <hr />
+          <button
+            type="submit"
+            class="btn btn-success mr-2"
+            [disabled]="loading || incomeForm.invalid"
+          >
+            <i [ngClass]="loading ? 'fa fa-spin fa-sync' : 'fa fa-save'"></i>
+            {{ loading ? "Guardando..." : "Agregar" }}
+          </button>
+          <button type="reset" class="btn btn-light">Cancelar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

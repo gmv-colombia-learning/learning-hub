@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Detalle de ingreso egreso</h4>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Tipo</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of incomeexpense | incomeOrder; track item.uid) {
+              <tr>
+                <td>{{ item.description }}</td>
+                <td>{{ item.amount | currency }}</td>
+                <td
+                  [class.text-success]="item.type === movementType.INCOME"
+                  [class.text-danger]="item.type === movementType.EXPENSE"
+                >
+                  {{ item.type }}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    (click)="deleteIncomeExpense(item?.uid)"
+                  >
+                    <i class="fa fa-trash"></i>
+                    Borrar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
