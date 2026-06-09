@@ -6,7 +6,7 @@ export const routes: Routes = [
     {
         path: 'country',
         loadChildren: () =>
-            loadRemoteModule('country', './Module')
+            loadRemoteModule('mfeCountryApp', './routes')
             .then(m => m.routes)
     },
 
