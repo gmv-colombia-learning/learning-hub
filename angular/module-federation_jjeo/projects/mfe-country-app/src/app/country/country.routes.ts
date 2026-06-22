@@ -1,14 +1,20 @@
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { Routes } from '@angular/router';
 import { ByCapitalPageComponent } from './pages/by-capital-page/by-capital-page.component';
 import { CountryLayoutComponent } from './layouts/CountryLayout/CountryLayout.component';
 import { ByCountryPageComponent } from './pages/by-country-page/by-country-page.component';
 import { ByRegionPageComponent } from './pages/by-region-page/by-region-page.component';
 import { CountryPageComponent } from './pages/country-page/country-page.component';
+import { CountryService } from './services/country.service';
 
 export const countryRoutes: Routes = [
   {
     path: '',
     component: CountryLayoutComponent,
+    providers: [
+      provideHttpClient(withFetch()),
+      CountryService,
+    ],
     children: [
       {
         path: 'by-capital',
