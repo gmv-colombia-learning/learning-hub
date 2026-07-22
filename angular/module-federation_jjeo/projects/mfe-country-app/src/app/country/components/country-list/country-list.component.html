@@ -12,7 +12,20 @@
       </tr>
     </thead>
     <tbody>
-      <tr></tr>
+      @for (country of countries(); track country.codes.alpha_2; let index = $index) {
+      <tr>
+        <td>{{ index + 1 }}</td>
+        <td>{{ country.flag.emoji }}</td>
+        <td>
+          <img 
+            [src]="country.flag.url_svg" 
+            [alt]="country.names.common" 
+            class="w-10 h-10 rounded-full object-cover" 
+          />
+        </td>
+      </tr>
+      }
+
     </tbody>
   </table>
 </section>
