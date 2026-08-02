@@ -1,0 +1,16 @@
+//El archivo .proto está escrito en un lenguaje llamado Protocol Buffers Language o simplemente Proto, creado por Google.
+
+/*En este archivo se definen los mensajes (datos) y los métodos o procedimientos que permiten la 
+comunicación entre el cliente y el servidor. A partir de este archivo, gRPC genera automáticamente 
+los modelos y contratos necesarios tanto en el cliente como en el servidor, en este caso en C#.*/
+syntax = "proto3";
+
+package protobufs;
+
+// Los mensajes definen los datos que se transmitirán desde el cliente hacia el servidor
+
+message DataPayload { }
+
+// Los servicios son las acciones que podemos realizar; por ejemplo, solicitar o insertar información.
+
+service Operations { }

@@ -1,0 +1,58 @@
+# ----------------------------
+# Visual Studio / .NET
+# ----------------------------
+
+.vs/
+.vscode/
+.idea/
+
+# Build outputs
+bin/
+obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Logs and runtime files
+*.log
+*.tmp
+*.cache
+*.pid
+*.pidb
+*.svclog
+
+# Test results
+TestResults/
+*.trx
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# .NET / MSBuild
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio Code / local settings
+.settings/
+local.settings.json
+
+# ASP.NET / launch profiles
+Properties/launchSettings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# gRPC / protobuf generated outputs (si los generas localmente)
+*.csproj.user
+*.g.cs
+*.g.i.cs

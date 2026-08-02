@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package protobufs;
+
+message Person {
+	string name = 1;
+	string lastName = 2;
+	string email = 3;
+}
+
+message PersonRequest {
+	Person person = 1;
+}
+
+message PersonResponse {
+	string result = 1;
+}
+
+message PersonRequestStream {
+	Person person = 1;
+}
+
+message BidirectionalPersonRequest {
+	Person person = 1;
+}
+
+message PersonResponseStream {
+	string result = 1;
+}
+
+message PersonClientRequestStream {
+	Person person = 1;
+}
+
+message PersonClientResponseStream {
+	string result = 1;
+}
+
+message BidirectionalPersonResponse {
+	string result = 1;
+}
+
+service PersonService {
+	// gRPC Unary
+	rpc RegisterPerson(PersonRequest) returns (PersonResponse){};
+
+	// gRPC Server Streaming
+	rpc RegisterPersonStreaming(PersonRequestStream) returns (stream PersonResponseStream){};
+
+	// gRPC Client Streaming
+	rpc RegisterPersonClientStreaming(stream PersonClientRequestStream) returns (PersonClientResponseStream){};
+
+	// gRPC Bidirectional Streaming
+	rpc RegisterPersonBidirectional(stream BidirectionalPersonRequest) returns (stream BidirectionalPersonResponse){};
+}
