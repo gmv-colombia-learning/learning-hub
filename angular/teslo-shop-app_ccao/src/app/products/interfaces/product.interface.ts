@@ -28,13 +28,12 @@ export enum Gender {
 }
 
 export enum Size {
-  L = 'L',
-  M = 'M',
-  S = 'S',
   XS = 'XS',
-  Xl = 'XL',
-  Xs = 'XS',
-  Xxl = 'XXL',
+  S = 'S',
+  M = 'M',
+  L = 'L',
+  XL = 'XL',
+  XXL = 'XXL',
 }
 
 export interface Options {

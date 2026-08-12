@@ -9,6 +9,14 @@
         class="w-full object-cover animate-fadeIn"
       />
     </div>
+    } @empty {
+    <div class="swiper-slide">
+      <img
+        [src]="'' | productImage"
+        alt="Producto"
+        class="w-full object-cover animate-fadeIn"
+      />
+    </div>
     }
   </div>
 
