@@ -24,7 +24,9 @@ export class AuthService {
   });
 
   authStatus = computed<AuthStatus>(() => {
-    if (this._authStatus() === 'checking') return 'checking';
+    if (this._authStatus() === 'checking') {
+      return 'checking';
+    }
 
     if (this._user()) {
       return 'authenticated';

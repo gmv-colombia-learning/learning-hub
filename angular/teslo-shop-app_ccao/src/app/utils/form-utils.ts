@@ -62,7 +62,9 @@ export class FormUtils {
   }
 
   static getFieldError(form: FormGroup, fieldName: string): string | null {
-    if (!form.controls[fieldName]) return null;
+    if (!form.controls[fieldName]) {
+      return null;
+    }
 
     const errors = form.controls[fieldName].errors ?? {};
 
@@ -77,9 +79,11 @@ export class FormUtils {
 
   static getFieldErrorInArray(
     formArray: FormArray,
-    index: number
+    index: number,
   ): string | null {
-    if (formArray.controls.length === 0) return null;
+    if (formArray.controls.length === 0) {
+      return null;
+    }
 
     const errors = formArray.controls[index].errors ?? {};
 
@@ -96,7 +100,7 @@ export class FormUtils {
   }
 
   static async checkingServerResponse(
-    control: AbstractControl
+    control: AbstractControl,
   ): Promise<ValidationErrors | null> {
     await sleep();
 

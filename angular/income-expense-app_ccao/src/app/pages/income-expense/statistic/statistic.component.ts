@@ -1,9 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ElementRef,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import Chart from 'chart.js/auto';
@@ -21,7 +16,9 @@ import { IncomeExpense } from '../../../shared/models/income-expense.model';
 export class StatisticComponent implements OnInit {
   @ViewChild('chartCanvas')
   set chartCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
-    if (!ref) return;
+    if (!ref) {
+      return;
+    }
 
     this.renderChart(ref.nativeElement);
   }
@@ -38,7 +35,7 @@ export class StatisticComponent implements OnInit {
 
   ngOnInit() {
     this.store
-      .select(state => state.incomeExpense)
+      .select((state) => state.incomeExpense)
       .subscribe(({ items }) => this.generateStatistics(items));
   }
 

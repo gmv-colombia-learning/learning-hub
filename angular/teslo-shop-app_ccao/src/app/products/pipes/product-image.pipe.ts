@@ -8,8 +8,22 @@ const baseUrl = environment.baseUrl;
 })
 export class ProductImagePipe implements PipeTransform {
   transform(value: string | string[]): string {
+    const resolveImage = (image: string): string => {
+      if (
+        image.startsWith('http') ||
+        image.startsWith('./assets') ||
+        image.startsWith('/assets') ||
+        image.startsWith('blob:') ||
+        image.startsWith('data:')
+      ) {
+        return image;
+      }
+
+      return `${baseUrl}/files/product/${image}`;
+    };
+
     if (typeof value === 'string') {
-      return `${baseUrl}/files/product/${value}`;
+      return resolveImage(value);
     }
 
     const image = value.at(0);
@@ -18,6 +32,6 @@ export class ProductImagePipe implements PipeTransform {
       return './assets/images/no-image.jpg';
     }
 
-    return `${baseUrl}/files/product/${image}`;
+    return resolveImage(image);
   }
 }
