@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 
 import { AuthResponse } from '@auth/interfaces/auth-response.interface';
 import { User } from '@auth/interfaces/user.interface';
+import { mockAuthResponse } from '@auth/mocks/mock-auth-response';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
 const baseUrl = environment.baseUrl;
@@ -40,6 +41,10 @@ export class AuthService {
   isAdmin = computed(() => this._user()?.roles.includes('admin') ?? false);
 
   login(email: string, password: string): Observable<boolean> {
+    if (environment.useMockApi) {
+      return of(this.handleAuthSuccess(mockAuthResponse));
+    }
+
     return this.http
       .post<AuthResponse>(`${baseUrl}/auth/login`, {
         email,
@@ -56,6 +61,10 @@ export class AuthService {
     if (!token) {
       this.logout();
       return of(false);
+    }
+
+    if (environment.useMockApi) {
+      return of(this.handleAuthSuccess(mockAuthResponse));
     }
 
     return this.http.get<AuthResponse>(`${baseUrl}/auth/check-status`, {}).pipe(
