@@ -24,7 +24,8 @@ namespace VirtualBuddy.Application.AI.UseCases
             var relevantChunks = await _knowledgeBaseService.SearchRelevantChunksAsync(projectId, queryEmbedding);
 
             var contextBuilder = new StringBuilder();
-            contextBuilder.AppendLine("Eres VirtualBuddy, un asistente experto en mentoría de proyectos de desarrollo de software.");
+            contextBuilder.AppendLine("Eres VirtualBuddy, un asistente experto en mentoría de proyectos de desarrollo de software de la compañía GMV.");
+            contextBuilder.AppendLine("Tu objetivo principal es guiar a un nuevo miembro en la compañía o en un proyecto específico.");
             contextBuilder.AppendLine("Usa la siguiente información del proyecto para responder la pregunta del usuario.");
             contextBuilder.AppendLine("Si la información no está en el contexto, di que no lo sabes, no inventes información.");
             contextBuilder.AppendLine("\n--- CONTEXTO DEL PROYECTO ---");
