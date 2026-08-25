@@ -1,18 +1,37 @@
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi;
-using VirtualBuddy.Infraestructure;
-using VirtualBuddy.Application;
+using System.Net;
 using VirtualBuddy.Api.Middleware;
+using VirtualBuddy.Application;
+using VirtualBuddy.Infraestructure;
+using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Data;
 using VirtualBuddy.Infraestructure.Identity;
-using VirtualBuddy.Infraestructure.data;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Configuration.AddJsonFile(
+    "password-recovery.settings.example.json",
+    optional: false,
+    reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+    options.ForwardLimit = 1;
+
+    foreach (var proxy in builder.Configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [])
+    {
+        if (IPAddress.TryParse(proxy, out var address))
+            options.KnownProxies.Add(address);
+    }
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -43,9 +62,9 @@ builder.Services.AddSwaggerGen(options =>
 
     options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
     {
-        { 
-            new OpenApiSecuritySchemeReference("Bearer"), 
-            new List<string>() 
+        {
+            new OpenApiSecuritySchemeReference("Bearer"),
+            new List<string>()
         }
     });
 
@@ -58,11 +77,12 @@ builder.Services.AddSwaggerGen(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddConfigureServices(builder.Configuration);
+builder.Services.AddInfraConfigureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.

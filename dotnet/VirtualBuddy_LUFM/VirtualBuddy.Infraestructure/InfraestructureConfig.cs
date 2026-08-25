@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.SemanticKernel;
 using System.Text;
 using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Domain.Common;
@@ -11,12 +12,13 @@ using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Identity;
 using VirtualBuddy.Infraestructure.Persistence;
 using VirtualBuddy.Infraestructure.Services;
+using VirtualBuddy.Infraestructure.Util;
 
 namespace VirtualBuddy.Infraestructure
 {
     public static class InfraestructureConfig
     {
-        public static IServiceCollection AddConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfraConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<BuddyDBContext>(options =>
                 options.UseNpgsql(
@@ -59,14 +61,85 @@ namespace VirtualBuddy.Infraestructure
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!)),
                     ClockSkew = TimeSpan.Zero // Eliminar el margen de 5 minutos por defecto
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        if (context.Principal == null)
+                        {
+                            context.Fail("El token no identifica al usuario.");
+                            return;
+                        }
+
+                        var validator = context.HttpContext.RequestServices
+                            .GetRequiredService<JwtSessionValidator>();
+                        if (!await validator.IsValidAsync(context.Principal))
+                            context.Fail("La sesion fue invalidada.");
+                    }
+                };
             });
 
             services.AddScoped<IRepository, Repository>();
             services.AddScoped<IAuthService, IdentityAuthService>();
+            services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
+            services.AddHttpClient<IEmailSender, ResendEmailSender>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.resend.com/");
+            });
+            services.AddScoped<JwtSessionValidator>();
+            services.AddSingleton(TimeProvider.System);
+            services.AddOptions<PasswordRecoverySettings>()
+                .Bind(configuration.GetSection(PasswordRecoverySettings.SectionName))
+                .Validate(settings => settings.CodePepper?.Length >= 32,
+                    "PasswordRecovery:CodePepper debe contener al menos 32 caracteres.")
+                .ValidateOnStart();
+            services.AddOptions<ResendSettings>()
+                .Bind(configuration.GetSection(ResendSettings.SectionName))
+                .Validate(settings =>
+                        !string.IsNullOrWhiteSpace(settings.ApiKey) &&
+                        !string.IsNullOrWhiteSpace(settings.SenderEmail) &&
+                        !string.IsNullOrWhiteSpace(settings.SenderName),
+                    "La configuracion de Resend es incompleta.")
+                .ValidateOnStart();
 
             // Configuración de Supabase
             services.Configure<SupabaseSettings>(configuration.GetSection("Supabase"));
             services.AddSingleton<IFileStorageService, SupabaseStorageService>();
+
+            // AI Infrastructure
+            services.AddScoped<IDocumentParser, DocumentParserService>();
+            services.AddScoped<IKnowledgeBaseService, PostgresKnowledgeBaseService>();
+            services.AddScoped<IAIService, SemanticKernelAIService>();
+
+
+            // Semantic Kernel configuration with Ollama
+
+            services.AddHttpClient("ollama", client =>
+            {
+                var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
+                client.BaseAddress = new Uri(ollamaEndpoint);
+                client.Timeout = TimeSpan.FromMinutes(10);
+            });
+
+            services.AddScoped(sp =>
+            {
+
+                var builder = Kernel.CreateBuilder();
+
+                var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
+
+                builder.AddOllamaChatCompletion(
+                    modelId: configuration["Ollama:ChatModel"] ?? "llama3",
+                    endpoint: new Uri(ollamaEndpoint)
+                );
+
+                builder.AddOllamaEmbeddingGenerator(
+                    modelId: configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text",
+                    endpoint: new Uri(ollamaEndpoint)
+                );
+
+                return builder.Build();
+            });
 
             return services;
         }

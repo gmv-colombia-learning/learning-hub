@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using Supabase;
 using VirtualBuddy.Application.Common.Interfaces;
+using VirtualBuddy.Infraestructure.Util;
 
 namespace VirtualBuddy.Infraestructure.Services
 {
