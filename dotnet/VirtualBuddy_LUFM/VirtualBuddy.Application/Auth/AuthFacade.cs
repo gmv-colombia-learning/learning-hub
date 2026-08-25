@@ -6,11 +6,19 @@ namespace VirtualBuddy.Application.Auth
     {
         public Login Login { get; }
         public Register Register { get; }
+        public RequestPasswordRecovery RequestPasswordRecovery { get; }
+        public ResetPassword ResetPassword { get; }
 
-        public AuthFacade(Login login, Register register)
+        public AuthFacade(
+            Login login,
+            Register register,
+            RequestPasswordRecovery requestPasswordRecovery,
+            ResetPassword resetPassword)
         {
             Login = login;
             Register = register;
+            RequestPasswordRecovery = requestPasswordRecovery;
+            ResetPassword = resetPassword;
         }
     }
 }

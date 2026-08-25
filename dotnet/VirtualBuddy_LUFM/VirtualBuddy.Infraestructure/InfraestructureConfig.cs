@@ -61,10 +61,46 @@ namespace VirtualBuddy.Infraestructure
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!)),
                     ClockSkew = TimeSpan.Zero // Eliminar el margen de 5 minutos por defecto
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        if (context.Principal == null)
+                        {
+                            context.Fail("El token no identifica al usuario.");
+                            return;
+                        }
+
+                        var validator = context.HttpContext.RequestServices
+                            .GetRequiredService<JwtSessionValidator>();
+                        if (!await validator.IsValidAsync(context.Principal))
+                            context.Fail("La sesion fue invalidada.");
+                    }
+                };
             });
 
             services.AddScoped<IRepository, Repository>();
             services.AddScoped<IAuthService, IdentityAuthService>();
+            services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
+            services.AddHttpClient<IEmailSender, ResendEmailSender>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.resend.com/");
+            });
+            services.AddScoped<JwtSessionValidator>();
+            services.AddSingleton(TimeProvider.System);
+            services.AddOptions<PasswordRecoverySettings>()
+                .Bind(configuration.GetSection(PasswordRecoverySettings.SectionName))
+                .Validate(settings => settings.CodePepper?.Length >= 32,
+                    "PasswordRecovery:CodePepper debe contener al menos 32 caracteres.")
+                .ValidateOnStart();
+            services.AddOptions<ResendSettings>()
+                .Bind(configuration.GetSection(ResendSettings.SectionName))
+                .Validate(settings =>
+                        !string.IsNullOrWhiteSpace(settings.ApiKey) &&
+                        !string.IsNullOrWhiteSpace(settings.SenderEmail) &&
+                        !string.IsNullOrWhiteSpace(settings.SenderName),
+                    "La configuracion de Resend es incompleta.")
+                .ValidateOnStart();
 
             // Configuración de Supabase
             services.Configure<SupabaseSettings>(configuration.GetSection("Supabase"));

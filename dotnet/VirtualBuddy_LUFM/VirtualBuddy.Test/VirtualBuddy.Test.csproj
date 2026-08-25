@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.7" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
@@ -26,6 +27,8 @@
   <ItemGroup>
     <ProjectReference Include="..\VirtualBuddy.Application\VirtualBuddy.Application.csproj" />
     <ProjectReference Include="..\VirtualBuddy.Domain\VirtualBuddy.Domain.csproj" />
+    <ProjectReference Include="..\VirtualBuddy.Infraestructure\VirtualBuddy.Infraestructure.csproj" />
+    <ProjectReference Include="..\VirtualBuddy.Api\VirtualBuddy.Api.csproj" />
   </ItemGroup>
 
 </Project>

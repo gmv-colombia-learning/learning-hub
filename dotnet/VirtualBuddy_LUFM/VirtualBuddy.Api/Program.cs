@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi;
+using System.Net;
 using VirtualBuddy.Api.Middleware;
 using VirtualBuddy.Application;
 using VirtualBuddy.Infraestructure;
@@ -11,8 +13,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Configuration.AddJsonFile(
+    "password-recovery.settings.example.json",
+    optional: false,
+    reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+    options.ForwardLimit = 1;
+
+    foreach (var proxy in builder.Configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [])
+    {
+        if (IPAddress.TryParse(proxy, out var address))
+            options.KnownProxies.Add(address);
+    }
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -63,6 +82,7 @@ builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.

@@ -29,6 +29,7 @@
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.76.0-alpha" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Postgres" Version="1.51.0-preview" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    <PackageReference Include="Resend" Version="0.13.0" />
     <PackageReference Include="Supabase" Version="1.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
     <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />

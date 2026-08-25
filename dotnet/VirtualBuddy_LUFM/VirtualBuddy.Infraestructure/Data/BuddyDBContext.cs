@@ -4,6 +4,7 @@ using VirtualBuddy.Domain.Project;
 using VirtualBuddy.Domain.Project.Entities;
 using VirtualBuddy.Domain.Document;
 using VirtualBuddy.Infraestructure.Identity;
+using VirtualBuddy.Domain.Auth;
 
 namespace VirtualBuddy.Infraestructure.data
 {
@@ -13,12 +14,39 @@ namespace VirtualBuddy.Infraestructure.data
         public DbSet<Technology> Technologies { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<PasswordRecoveryChallenge> PasswordRecoveryChallenges { get; set; }
+        public DbSet<PasswordRecoveryRequest> PasswordRecoveryRequests { get; set; }
 
         public BuddyDBContext(DbContextOptions<BuddyDBContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.Property(user => user.SessionVersion).HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<PasswordRecoveryChallenge>(entity =>
+            {
+                entity.ToTable("PasswordRecoveryChallenges");
+                entity.HasKey(challenge => challenge.Id);
+                entity.Property(challenge => challenge.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(challenge => challenge.CodeHash).IsRequired().HasMaxLength(64);
+                entity.Property(challenge => challenge.ConcurrencyStamp).IsConcurrencyToken();
+                entity.HasIndex(challenge => new { challenge.UserId, challenge.IssuedAt });
+            });
+
+            modelBuilder.Entity<PasswordRecoveryRequest>(entity =>
+            {
+                entity.ToTable("PasswordRecoveryRequests");
+                entity.HasKey(request => request.Id);
+                entity.Property(request => request.EmailHash).IsRequired().HasMaxLength(64);
+                entity.Property(request => request.OriginHash).IsRequired().HasMaxLength(64);
+                entity.HasIndex(request => new { request.EmailHash, request.RequestedAt });
+                entity.HasIndex(request => new { request.OriginHash, request.RequestedAt });
+            });
 
             modelBuilder.Entity<Document>(entity =>
             {

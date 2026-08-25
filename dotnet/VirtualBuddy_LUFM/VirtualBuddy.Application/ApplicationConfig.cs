@@ -45,6 +45,8 @@ namespace VirtualBuddy.Application
 
             services.AddScoped<Login>();
             services.AddScoped<Register>();
+            services.AddScoped<RequestPasswordRecovery>();
+            services.AddScoped<ResetPassword>();
             services.AddScoped<AuthFacade>();
 
             // Documentos

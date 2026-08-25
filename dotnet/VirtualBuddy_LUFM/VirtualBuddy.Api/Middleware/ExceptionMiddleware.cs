@@ -63,6 +63,20 @@ namespace VirtualBuddy.Api.Middleware
                     problemDetails.Detail = exception.Message;
                     break;
 
+                case TooManyRequestsException:
+                    context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    problemDetails.Status = StatusCodes.Status429TooManyRequests;
+                    problemDetails.Title = "Too Many Requests";
+                    problemDetails.Detail = exception.Message;
+                    break;
+
+                case TemporaryServiceUnavailableException:
+                    context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                    problemDetails.Status = StatusCodes.Status503ServiceUnavailable;
+                    problemDetails.Title = "Service Temporarily Unavailable";
+                    problemDetails.Detail = exception.Message;
+                    break;
+
                 default:
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     problemDetails.Status = (int)HttpStatusCode.InternalServerError;
