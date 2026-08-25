@@ -123,3 +123,4 @@ _ReSharper*/
 # =========================
 *.cache
 /dotnet/VirtualBuddy_LUFM/VirtualBuddy.Api/appsettings.json
+/dotnet/VirtualBuddy_LUFM/VirtualBuddy.Api/password-recovery.settings.example.json
