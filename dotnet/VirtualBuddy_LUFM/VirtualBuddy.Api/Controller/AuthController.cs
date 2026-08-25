@@ -51,5 +51,40 @@ namespace VirtualBuddy.Api.Controller
             var response = await _authFacade.Register.Execute(request);
             return Ok(response);
         }
+
+        /// <summary>
+        /// Requests a password recovery code without disclosing whether the account exists.
+        /// </summary>
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(typeof(PasswordRecoveryResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+        public async Task<ActionResult<PasswordRecoveryResponseDto>> ForgotPassword(
+            [FromBody] ForgotPasswordRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var origin = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var response = await _authFacade.RequestPasswordRecovery.Execute(
+                request,
+                origin,
+                cancellationToken);
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Resets a password using a valid recovery code.
+        /// </summary>
+        [HttpPost("reset-password")]
+        [ProducesResponseType(typeof(PasswordRecoveryResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<PasswordRecoveryResponseDto>> ResetPassword(
+            [FromBody] ResetPasswordRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var response = await _authFacade.ResetPassword.Execute(request, cancellationToken);
+            return Ok(response);
+        }
     }
 }

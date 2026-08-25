@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -21,5 +21,11 @@
     <ProjectReference Include="..\VirtualBuddy.Application\VirtualBuddy.Application.csproj" />
     <ProjectReference Include="..\VirtualBuddy.Infraestructure\VirtualBuddy.Infraestructure.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Update="password-recovery.settings.example.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

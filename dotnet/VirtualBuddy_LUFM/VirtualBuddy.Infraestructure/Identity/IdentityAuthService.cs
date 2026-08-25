@@ -98,7 +98,8 @@ namespace VirtualBuddy.Infraestructure.Identity
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("FullName", user.FullName)
+                new Claim("FullName", user.FullName),
+                new Claim("session_version", user.SessionVersion.ToString())
             };
 
             var token = new JwtSecurityToken(

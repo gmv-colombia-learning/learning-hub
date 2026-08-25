@@ -8,6 +8,8 @@ using VirtualBuddy.Application.Auth;
 using VirtualBuddy.Application.Auth.UseCases;
 using VirtualBuddy.Application.Document;
 using VirtualBuddy.Application.Document.UseCases;
+using VirtualBuddy.Application.AI;
+using VirtualBuddy.Application.AI.UseCases;
 
 namespace VirtualBuddy.Application
 {
@@ -43,6 +45,8 @@ namespace VirtualBuddy.Application
 
             services.AddScoped<Login>();
             services.AddScoped<Register>();
+            services.AddScoped<RequestPasswordRecovery>();
+            services.AddScoped<ResetPassword>();
             services.AddScoped<AuthFacade>();
 
             // Documentos
@@ -50,6 +54,11 @@ namespace VirtualBuddy.Application
             services.AddScoped<GetProjectDocuments>();
             services.AddScoped<DeleteDocument>();
             services.AddScoped<DocumentFacade>();
+
+            // AI (RAG)
+            services.AddScoped<ChatWithProject>();
+            services.AddScoped<IndexDocument>();
+            services.AddScoped<AIFacade>();
 
             return services;
         }

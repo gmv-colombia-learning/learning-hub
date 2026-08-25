@@ -1,4 +1,4 @@
-namespace VirtualBuddy.Infraestructure.Services
+namespace VirtualBuddy.Infraestructure.Util
 {
     public class SupabaseSettings
     {
