@@ -29,12 +29,43 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
+            "local": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
+            "dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.testing.ts"
+                }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -60,6 +91,16 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
+            "local": {
+              "buildTarget": "VirtualBuddyFront_LUFM:build:local",
+              "proxyConfig": "proxy.conf.json"
+            },
+            "dev": {
+              "buildTarget": "VirtualBuddyFront_LUFM:build:dev"
+            },
+            "test": {
+              "buildTarget": "VirtualBuddyFront_LUFM:build:test"
+            },
             "production": {
               "buildTarget": "VirtualBuddyFront_LUFM:build:production"
             },
@@ -67,7 +108,7 @@
               "buildTarget": "VirtualBuddyFront_LUFM:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "test": {
           "builder": "@angular/build:unit-test"

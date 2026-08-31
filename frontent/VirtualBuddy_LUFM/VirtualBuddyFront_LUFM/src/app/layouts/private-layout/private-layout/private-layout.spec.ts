@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 
+import { SessionService } from '../../../features/user/infrastructure/session.service';
 import { PrivateLayout } from './private-layout';
 
 describe('PrivateLayout', () => {
@@ -9,6 +11,7 @@ describe('PrivateLayout', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PrivateLayout],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PrivateLayout);
@@ -18,5 +21,17 @@ describe('PrivateLayout', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('clears the session and navigates to login', () => {
+    const session = TestBed.inject(SessionService);
+    const router = TestBed.inject(Router);
+    const clear = vi.spyOn(session, 'clear');
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+
+    expect(clear).toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/login']);
   });
 });

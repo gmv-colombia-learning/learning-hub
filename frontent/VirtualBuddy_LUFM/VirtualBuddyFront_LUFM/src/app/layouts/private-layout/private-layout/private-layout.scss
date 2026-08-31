@@ -1,0 +1,45 @@
+.private-header {
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid #e4e7ec;
+  background: white;
+}
+
+.brand {
+  color: #101828;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #475467;
+
+  button {
+    padding: 0.65rem 0.9rem;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.55rem;
+    color: #344054;
+    background: white;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+  }
+}
+
+.private-content {
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+@media (max-width: 34rem) {
+  .session-actions span {
+    display: none;
+  }
+}
