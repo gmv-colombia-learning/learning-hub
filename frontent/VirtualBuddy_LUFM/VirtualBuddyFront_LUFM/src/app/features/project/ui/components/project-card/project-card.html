@@ -1,0 +1,22 @@
+<article class="project-card">
+  <div class="project-image-frame">
+    <img
+      class="project-image"
+      [class.project-image--fallback]="!project().imageUrl"
+      [src]="project().imageUrl || fallbackImageUrl"
+      [alt]="project().name"
+      loading="lazy"
+      decoding="async"
+      (error)="showFallbackImage($event)"
+    />
+  </div>
+  <div class="project-content">
+    <div class="project-heading">
+      <h2>{{ project().name }}</h2>
+      <span class="status" [class]="'status status--' + statusClass(project().status)">
+        {{ statusLabel(project().status) }}
+      </span>
+    </div>
+    <p>{{ project().description }}</p>
+  </div>
+</article>

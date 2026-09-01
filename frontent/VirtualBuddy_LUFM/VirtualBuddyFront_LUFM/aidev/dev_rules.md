@@ -54,6 +54,18 @@ Estas reglas definen CÓMO implementar una spec aprobada. La arquitectura de ref
 - Traducir errores técnicos a errores comprensibles para aplicación/UI sin ocultar la causa útil para diagnóstico.
 - No inventar contratos de backend ni respuestas exitosas. Si no están definidos por una spec o contrato verificable, solicitar aclaración.
 
+## Integracion con el backend .NET
+
+- El backend de referencia esta en `C:\Users\EXLUFM\source\repos\CareerPlan\VirtualBuddy_LUFM\dotnet\VirtualBuddy_LUFM` y es una fuente externa de contratos para este frontend.
+- El backend es de solo lectura durante el desarrollo frontend: no modificar archivos, configuracion, migraciones, datos ni codigo .NET. Si el frontend requiere un cambio de backend, documentar la necesidad y solicitar que se gestione por separado.
+- Antes de implementar una integracion, verificar en el backend el controller, DTO de respuesta y solicitud, enum, nulabilidad, autenticacion, serializacion, errores y comportamiento real de consulta. Registrar el contrato funcional en la spec correspondiente; no acoplar el frontend a entidades internas de .NET.
+- Mantener DTOs HTTP en `infrastructure/` y mapearlos a modelos propios. No reutilizar nombres o formas internas del backend cuando no formen parte del contrato serializado.
+- Para desarrollo local, consumir la API mediante el `API_BASE_URL` configurado y el proxy Angular existente (`/backend` hacia `https://localhost:5001`); no codificar hosts ni puertos en componentes, casos de uso o repositorios.
+- La API no configura CORS en el codigo de referencia. Conservar el proxy local y considerar mismo origen o configuracion de infraestructura para despliegues; no resolverlo modificando el backend desde este repositorio.
+- Los endpoints protegidos requieren el JWT Bearer gestionado por el interceptor existente. No duplicar cabeceras de autenticacion en cada repositorio.
+- En `GET /api/project`, el contrato verificado devuelve el arreglo JSON directo de todos los proyectos, sin envelope, filtros, paginacion ni orden garantizado. Requiere autenticacion y responde `200` con `[]` cuando no hay datos.
+- El estado serializado por `GET /api/project` es numerico: `0` Unknown, `1` Active, `2` Inactive, `3` Review y `4` Completed. Cualquier etiqueta traducida o tratamiento visual debe definirse en la spec de la feature.
+
 ## Estructura y nombres
 
 - Mantener specs `*.spec.ts` junto al archivo probado y estilos/templates junto al componente.
