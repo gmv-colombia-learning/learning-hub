@@ -12,6 +12,7 @@ namespace VirtualBuddy.Application.Project
         public DeleteProject DeleteProject { get; }
         public AddTechnologyToProject AddTechnologyToProject { get; }
         public GetTechnologies GetTechnologies { get; }
+        public SetProjectImage SetProjectImage { get; }
 
         public ProjectFacade(GetProjects getProjects,
                              GetProjectById getProjectById,
@@ -20,7 +21,8 @@ namespace VirtualBuddy.Application.Project
                              PatchProject patchProject,
                              DeleteProject deleteProject,
                              AddTechnologyToProject addTechnologyToProject,
-                             GetTechnologies getTechnologies)
+                              GetTechnologies getTechnologies,
+                              SetProjectImage setProjectImage)
         {
             GetProjects = getProjects;
             GetProjectById = getProjectById;
@@ -30,6 +32,7 @@ namespace VirtualBuddy.Application.Project
             DeleteProject = deleteProject;
             AddTechnologyToProject = addTechnologyToProject;
             GetTechnologies = getTechnologies;
+            SetProjectImage = setProjectImage;
         }
     }
 }

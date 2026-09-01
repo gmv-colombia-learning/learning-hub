@@ -139,6 +139,24 @@ namespace VirtualBuddy.Api.Controller
         }
 
         /// <summary>
+        /// Uploads or replaces the image for an existing project.
+        /// </summary>
+        [HttpPut("{id}/image")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(GetProjectResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+        public async Task<ActionResult<GetProjectResponseDto>> SetImage(Guid id, IFormFile image)
+        {
+            EnsureImageProvided(image);
+            using var stream = image.OpenReadStream();
+            var project = await _projectFacade.SetProjectImage.Execute(
+                id, stream, image.FileName, image.ContentType, image.Length);
+            return Ok(project);
+        }
+
+        /// <summary>
         /// Deletes a project.
         /// </summary>
         /// <param name="id">The project unique identifier.</param>
@@ -154,6 +172,12 @@ namespace VirtualBuddy.Api.Controller
         {
             await _projectFacade.DeleteProject.Execute(id);
             return NoContent();
+        }
+
+        private static void EnsureImageProvided(IFormFile? image)
+        {
+            if (image == null || image.Length == 0)
+                throw new Domain.Common.Exceptions.ValidationException("Project image cannot be empty.");
         }
     }
 }

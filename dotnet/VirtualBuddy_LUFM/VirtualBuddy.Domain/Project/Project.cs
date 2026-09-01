@@ -1,8 +1,8 @@
 using VirtualBuddy.Domain.Common;
 using VirtualBuddy.Domain.Common.Enums;
 using VirtualBuddy.Domain.Common.Exceptions;
-using VirtualBuddy.Domain.Project.ValueObjects;
 using VirtualBuddy.Domain.Project.Entities;
+using VirtualBuddy.Domain.Project.ValueObjects;
 
 namespace VirtualBuddy.Domain.Project
 {
@@ -13,7 +13,7 @@ namespace VirtualBuddy.Domain.Project
         public ProjectDescription Description { get; private set; }
         public DateTime DevelopmentTime { get; private set; }
         public ProjectStatus Status { get; private set; }
-        public string UrlImage { get; private set; }
+        public string? UrlImage { get; private set; }
         public string? InformationAI { get; private set; }
         public string? ArchitectureInfo { get; private set; } // IA Generated
 
@@ -27,7 +27,7 @@ namespace VirtualBuddy.Domain.Project
         // Constructor para EF Core
         private Project() { }
 
-        public Project(ProjectName name, ProjectDescription description, string urlImage, string? acronym = null, DateTime? developmentTime = null)
+        public Project(ProjectName name, ProjectDescription description, string? urlImage = null, string? acronym = null, DateTime? developmentTime = null)
         {
             Id = Guid.NewGuid();
             Name = name;
@@ -61,12 +61,20 @@ namespace VirtualBuddy.Domain.Project
             ArchitectureInfo = info;
         }
 
-        public void UpdateBasicInfo(ProjectName name, ProjectDescription description, string urlImage, string? acronym = null)
+        public void UpdateBasicInfo(ProjectName name, ProjectDescription description, string? urlImage, string? acronym = null)
         {
             Name = name;
             Description = description;
             UrlImage = urlImage;
             Acronym = acronym;
+        }
+
+        public void SetImageUrl(string urlImage)
+        {
+            if (!Uri.TryCreate(urlImage, UriKind.Absolute, out _))
+                throw new ValidationException("Project image URL must be an absolute URL.");
+
+            UrlImage = urlImage;
         }
 
         public void Deactivate()

@@ -5,7 +5,7 @@ using VirtualBuddy.Infraestructure.Util;
 
 namespace VirtualBuddy.Infraestructure.Services
 {
-    public class SupabaseStorageService : IFileStorageService
+    public class SupabaseStorageService : IFileStorageService, IProjectImageStorageService
     {
         private readonly Client _supabaseClient;
         private readonly SupabaseSettings _settings;
@@ -18,8 +18,8 @@ namespace VirtualBuddy.Infraestructure.Services
 
             var options = new SupabaseOptions
             {
-                AutoConnectRealtime = true,
-                AutoRefreshToken = true
+                AutoConnectRealtime = false,
+                AutoRefreshToken = false
             };
 
             _supabaseClient = new Client(url, key, options);
@@ -111,5 +111,67 @@ namespace VirtualBuddy.Infraestructure.Services
             // El resultado contiene las rutas que fueron eliminadas exitosamente
             return result != null && result.Count > 0;
         }
+
+        public async Task<string> UploadAsync(Guid projectId, Stream imageStream, string contentType)
+        {
+            await EnsureInitializedAsync();
+
+            var storagePath = GetProjectImagePath(projectId, Guid.NewGuid());
+            var bucket = _supabaseClient.Storage.From(_settings.ProjectImagesBucketName);
+            using var memoryStream = new MemoryStream();
+            await imageStream.CopyToAsync(memoryStream);
+
+            await bucket.Upload(memoryStream.ToArray(), storagePath, new Supabase.Storage.FileOptions
+            {
+                ContentType = contentType,
+                Upsert = false
+            });
+
+            return bucket.GetPublicUrl(storagePath);
+        }
+
+        public async Task DeleteAsync(Guid projectId, string url)
+        {
+            await EnsureInitializedAsync();
+            if (!TryGetStoragePath(projectId, url, out var storagePath))
+                return;
+
+            var bucket = _supabaseClient.Storage.From(_settings.ProjectImagesBucketName);
+            await bucket.Remove([storagePath]);
+        }
+
+        public bool IsManagedUrl(Guid projectId, string url)
+        {
+            return TryGetStoragePath(projectId, url, out _);
+        }
+
+        private bool TryGetStoragePath(Guid projectId, string url, out string storagePath)
+        {
+            storagePath = string.Empty;
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var imageUri))
+                return false;
+
+            var projectPath = $"projects/{projectId:D}/";
+            var projectBaseUrl = _supabaseClient.Storage
+                .From(_settings.ProjectImagesBucketName)
+                .GetPublicUrl(projectPath);
+            if (!Uri.TryCreate(projectBaseUrl, UriKind.Absolute, out var projectBaseUri) ||
+                imageUri.Scheme != projectBaseUri.Scheme ||
+                imageUri.Host != projectBaseUri.Host ||
+                !imageUri.AbsolutePath.StartsWith(projectBaseUri.AbsolutePath, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var fileName = Uri.UnescapeDataString(imageUri.AbsolutePath[projectBaseUri.AbsolutePath.Length..]);
+            if (string.IsNullOrWhiteSpace(fileName) || fileName.Contains('/'))
+                return false;
+
+            storagePath = projectPath + fileName;
+            return true;
+        }
+
+        private static string GetProjectImagePath(Guid projectId, Guid imageId) =>
+            $"projects/{projectId:D}/{imageId:D}";
     }
 }

@@ -103,8 +103,18 @@ namespace VirtualBuddy.Infraestructure
                 .ValidateOnStart();
 
             // Configuración de Supabase
-            services.Configure<SupabaseSettings>(configuration.GetSection("Supabase"));
-            services.AddSingleton<IFileStorageService, SupabaseStorageService>();
+            services.AddOptions<SupabaseSettings>()
+                .Bind(configuration.GetSection(SupabaseSettings.SectionName))
+                .Validate(settings =>
+                        Uri.TryCreate(settings.Url, UriKind.Absolute, out _) &&
+                        !string.IsNullOrWhiteSpace(settings.Key) &&
+                        !string.IsNullOrWhiteSpace(settings.BucketName) &&
+                        !string.IsNullOrWhiteSpace(settings.ProjectImagesBucketName),
+                    "La configuracion de Supabase es incompleta.")
+                .ValidateOnStart();
+            services.AddSingleton<SupabaseStorageService>();
+            services.AddSingleton<IFileStorageService>(provider => provider.GetRequiredService<SupabaseStorageService>());
+            services.AddSingleton<IProjectImageStorageService>(provider => provider.GetRequiredService<SupabaseStorageService>());
 
             // AI Infrastructure
             services.AddScoped<IDocumentParser, DocumentParserService>();

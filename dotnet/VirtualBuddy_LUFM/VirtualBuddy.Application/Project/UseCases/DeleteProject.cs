@@ -6,10 +6,12 @@ namespace VirtualBuddy.Application.Project.UseCases
     public class DeleteProject
     {
         private readonly IRepository _repository;
+        private readonly ProjectImageService _projectImageService;
 
-        public DeleteProject(IRepository repository)
+        public DeleteProject(IRepository repository, ProjectImageService projectImageService)
         {
             _repository = repository;
+            _projectImageService = projectImageService;
         }
 
         public async Task<bool> Execute(Guid id)
@@ -21,6 +23,7 @@ namespace VirtualBuddy.Application.Project.UseCases
                 throw new NotFoundException(nameof(Domain.Project.Project), id);
             }
 
+            await _projectImageService.DeleteIfManagedAsync(project.Id, project.UrlImage);
             _repository.Delete(project);
             await _repository.SaveChangesAsync();
 

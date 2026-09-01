@@ -41,6 +41,8 @@ namespace VirtualBuddy.Application
             services.AddScoped<DeleteProject>();
             services.AddScoped<AddTechnologyToProject>();
             services.AddScoped<GetTechnologies>();
+            services.AddScoped<SetProjectImage>();
+            services.AddScoped<ProjectImageService>();
             services.AddScoped<ProjectFacade>();
 
             services.AddScoped<Login>();

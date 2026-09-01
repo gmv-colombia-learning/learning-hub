@@ -10,11 +10,13 @@ namespace VirtualBuddy.Application.Project.UseCases
     {
         private readonly IRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ProjectImageService _projectImageService;
 
-        public PatchProject(IRepository repository, IMapper mapper)
+        public PatchProject(IRepository repository, IMapper mapper, ProjectImageService projectImageService)
         {
             _repository = repository;
             _mapper = mapper;
+            _projectImageService = projectImageService;
         }
 
         public async Task<GetProjectResponseDto> Execute(Guid id, PatchProjectRequestDto request)
@@ -26,7 +28,7 @@ namespace VirtualBuddy.Application.Project.UseCases
                 throw new NotFoundException(nameof(Domain.Project.Project), id);
             }
 
-            // Aplicar cambios parciales validando reglas de dominio
+            var previousUrl = project.UrlImage;
             if (request.Name != null || request.Description != null || request.UrlImage != null || request.Acronym != null)
             {
                 project.UpdateBasicInfo(
@@ -58,6 +60,9 @@ namespace VirtualBuddy.Application.Project.UseCases
 
             _repository.Update(project);
             await _repository.SaveChangesAsync();
+
+            if (previousUrl != project.UrlImage)
+                await _projectImageService.DeleteIfManagedAsync(project.Id, previousUrl);
 
             return _mapper.Map<GetProjectResponseDto>(project);
         }

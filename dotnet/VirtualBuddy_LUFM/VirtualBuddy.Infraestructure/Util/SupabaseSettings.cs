@@ -6,5 +6,6 @@ namespace VirtualBuddy.Infraestructure.Util
         public string Url { get; set; } = string.Empty;
         public string Key { get; set; } = string.Empty;
         public string BucketName { get; set; } = string.Empty;
+        public string ProjectImagesBucketName { get; set; } = string.Empty;
     }
 }

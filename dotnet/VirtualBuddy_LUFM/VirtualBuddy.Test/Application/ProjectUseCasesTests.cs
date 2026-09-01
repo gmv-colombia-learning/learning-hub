@@ -4,6 +4,8 @@ using Moq;
 using VirtualBuddy.Application.DTOs.Request;
 using VirtualBuddy.Application.DTOs.Response;
 using VirtualBuddy.Application.Project.UseCases;
+using VirtualBuddy.Application.Project;
+using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Domain.Common;
 using VirtualBuddy.Domain.Common.Exceptions;
 using VirtualBuddy.Domain.Project;
@@ -15,6 +17,7 @@ namespace VirtualBuddy.Test.Application
     {
         private readonly Mock<IRepository> _repositoryMock;
         private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<IProjectImageStorageService> _projectImageStorageMock;
         private readonly GetProjects _getProjectsUseCase;
         private readonly GetProjectById _getProjectByIdUseCase;
         private readonly CreateProject _createProjectUseCase;
@@ -29,12 +32,14 @@ namespace VirtualBuddy.Test.Application
         {
             _repositoryMock = new Mock<IRepository>();
             _mapperMock = new Mock<IMapper>();
+            _projectImageStorageMock = new Mock<IProjectImageStorageService>();
+            var projectImageService = new ProjectImageService(_projectImageStorageMock.Object);
             _getProjectsUseCase = new GetProjects(_repositoryMock.Object, _mapperMock.Object);
             _getProjectByIdUseCase = new GetProjectById(_repositoryMock.Object, _mapperMock.Object);
             _createProjectUseCase = new CreateProject(_repositoryMock.Object, _mapperMock.Object);
-            _updateProjectUseCase = new UpdateProject(_repositoryMock.Object, _mapperMock.Object);
-            _patchProjectUseCase = new PatchProject(_repositoryMock.Object, _mapperMock.Object);
-            _deleteProjectUseCase = new DeleteProject(_repositoryMock.Object);
+            _updateProjectUseCase = new UpdateProject(_repositoryMock.Object, _mapperMock.Object, projectImageService);
+            _patchProjectUseCase = new PatchProject(_repositoryMock.Object, _mapperMock.Object, projectImageService);
+            _deleteProjectUseCase = new DeleteProject(_repositoryMock.Object, projectImageService);
 
             // AddTechnologyToProject dependencies
             _repositoryGenericMock = new Mock<IRepository>();
@@ -87,7 +92,7 @@ namespace VirtualBuddy.Test.Application
         public async Task CreateProject_ShouldReturnCreatedDto()
         {
             // Arrange
-            var request = new CreateProjectRequestDto { Name = "New Project", Description = "Description long enough", UrlImage = "url" };
+            var request = new CreateProjectRequestDto { Name = "New Project", Description = "Description long enough" };
             var responseDto = new GetProjectResponseDto { Name = "New Project" };
 
             _mapperMock.Setup(m => m.Map<GetProjectResponseDto>(It.IsAny<Project>())).Returns(responseDto);
@@ -100,6 +105,7 @@ namespace VirtualBuddy.Test.Application
             result.Name.Should().Be("New Project");
             _repositoryMock.Verify(r => r.AddAsync(It.IsAny<Project>()), Times.Once);
             _repositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+            _repositoryMock.Verify(r => r.AddAsync(It.Is<Project>(project => project.UrlImage == null)), Times.Once);
         }
 
         [Fact]
@@ -162,6 +168,52 @@ namespace VirtualBuddy.Test.Application
             result.Should().BeTrue();
             _repositoryMock.Verify(r => r.Delete(existingProject), Times.Once);
             _repositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateProject_WithoutUrlImage_ShouldPreserveExistingImage()
+        {
+            var existingProject = new Project(
+                "Old Project",
+                "Description long enough",
+                "https://storage/project-image");
+            var request = new UpdateProjectRequestDto
+            {
+                Id = existingProject.Id,
+                Name = "Updated Project",
+                Description = "Updated description long enough",
+                Status = Domain.Common.Enums.ProjectStatus.Active
+            };
+            _repositoryMock
+                .Setup(repository => repository.GetByIdAsync<Project>(existingProject.Id))
+                .ReturnsAsync(existingProject);
+            _mapperMock
+                .Setup(mapper => mapper.Map<GetProjectResponseDto>(existingProject))
+                .Returns(new GetProjectResponseDto { Id = existingProject.Id });
+
+            await _updateProjectUseCase.Execute(request);
+
+            existingProject.UrlImage.Should().Be("https://storage/project-image");
+            _projectImageStorageMock.Verify(
+                storage => storage.DeleteAsync(It.IsAny<Guid>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteProject_WithManagedImage_ShouldDeleteImageBeforeProject()
+        {
+            var existingProject = new Project("Test", "Description long enough", "https://storage/project-image");
+            _repositoryMock.Setup(r => r.GetByIdAsync<Project>(existingProject.Id)).ReturnsAsync(existingProject);
+            _projectImageStorageMock
+                .Setup(storage => storage.IsManagedUrl(existingProject.Id, existingProject.UrlImage!))
+                .Returns(true);
+
+            await _deleteProjectUseCase.Execute(existingProject.Id);
+
+            _projectImageStorageMock.Verify(
+                storage => storage.DeleteAsync(existingProject.Id, existingProject.UrlImage!),
+                Times.Once);
+            _repositoryMock.Verify(repository => repository.Delete(existingProject), Times.Once);
         }
 
 

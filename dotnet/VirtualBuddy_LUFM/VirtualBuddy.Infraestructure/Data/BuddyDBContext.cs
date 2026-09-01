@@ -72,6 +72,9 @@ namespace VirtualBuddy.Infraestructure.data
                     .HasConversion(v => v.Value, v => new Domain.Project.ValueObjects.ProjectDescription(v))
                     .IsRequired();
 
+                entity.Property(p => p.UrlImage)
+                    .IsRequired(false);
+
                 // Configuración Many-to-Many con Technology
                 entity.HasMany(p => p.Technologies)
                     .WithMany(t => t.Projects)
