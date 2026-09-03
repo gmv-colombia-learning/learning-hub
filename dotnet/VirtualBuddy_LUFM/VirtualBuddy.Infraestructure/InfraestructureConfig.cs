@@ -18,11 +18,21 @@ namespace VirtualBuddy.Infraestructure
 {
     public static class InfraestructureConfig
     {
-        public static IServiceCollection AddInfraConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfraConfigureServices(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            string environmentName)
         {
+            var connectionString = configuration.GetConnectionString(environmentName)
+                ?? configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException(
+                    $"La configuracion 'ConnectionStrings:{environmentName}' o " +
+                    "'ConnectionStrings:DefaultConnection' es obligatoria.");
+
             services.AddDbContext<BuddyDBContext>(options =>
                 options.UseNpgsql(
-                    configuration.GetConnectionString("DefaultConnection"),
+                    connectionString,
                     b => b.MigrationsAssembly("VirtualBuddy.Infraestructure")
                 ));
 

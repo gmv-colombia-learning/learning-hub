@@ -77,8 +77,6 @@ node_modules/
 # =========================
 # Secrets / Config local
 # =========================
-appsettings.Development.json
-appsettings.Local.json
 secrets.json
 appsettings.json
 
