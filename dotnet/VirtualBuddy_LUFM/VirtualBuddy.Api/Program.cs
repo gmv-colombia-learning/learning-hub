@@ -77,7 +77,7 @@ builder.Services.AddSwaggerGen(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddInfraConfigureServices(builder.Configuration);
+builder.Services.AddInfraConfigureServices(builder.Configuration, builder.Environment.EnvironmentName);
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();
@@ -86,7 +86,7 @@ app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 {
     app.MapOpenApi();
     app.UseSwagger();
