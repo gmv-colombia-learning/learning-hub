@@ -13,5 +13,6 @@
         Task<T?> GetByIdAsync<T>(params object[] keyValues) where T : class;
         Task<T?> GetEntityWithSpecAsync<T>(ISpecification<T> spec) where T : class;
         Task SaveChangesAsync();
+        Task ExecuteInTransactionAsync(Func<Task> operation);
     }
 }

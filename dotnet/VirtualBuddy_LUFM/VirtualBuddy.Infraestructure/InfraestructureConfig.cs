@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.SemanticKernel;
+using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.Text;
 using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Domain.Common;
@@ -23,18 +25,33 @@ namespace VirtualBuddy.Infraestructure
             IConfiguration configuration,
             string environmentName)
         {
-            var connectionString = configuration.GetConnectionString(environmentName)
-                ?? configuration.GetConnectionString("DefaultConnection");
+            if (environmentName is not ("Local" or "Development"))
+                throw new InvalidOperationException(
+                    $"El ambiente '{environmentName}' no esta soportado. Use 'Local' o 'Development'.");
+
+            var connectionString = configuration.GetConnectionString(environmentName);
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new InvalidOperationException(
-                    $"La configuracion 'ConnectionStrings:{environmentName}' o " +
-                    "'ConnectionStrings:DefaultConnection' es obligatoria.");
+                    $"La configuracion 'ConnectionStrings:{environmentName}' es obligatoria.");
 
-            services.AddDbContext<BuddyDBContext>(options =>
-                options.UseNpgsql(
-                    connectionString,
-                    b => b.MigrationsAssembly("VirtualBuddy.Infraestructure")
-                ));
+            if (environmentName == "Local")
+            {
+                ValidatePostgresConnectionString(connectionString, environmentName);
+                services.AddDbContext<BuddyDBContext>(options =>
+                    options.UseNpgsql(
+                        connectionString,
+                        database => database.MigrationsAssembly("VirtualBuddy.Infraestructure")));
+                services.AddScoped<IKnowledgeBaseService, PostgresKnowledgeBaseService>();
+            }
+            else
+            {
+                ValidateSqlServerConnectionString(connectionString, environmentName);
+                services.AddDbContext<BuddyDBContext>(options =>
+                    options.UseSqlServer(
+                        connectionString,
+                        database => database.MigrationsAssembly("VirtualBuddy.Migrations.SqlServer")));
+                services.AddScoped<IKnowledgeBaseService, SqlServerKnowledgeBaseService>();
+            }
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -98,6 +115,12 @@ namespace VirtualBuddy.Infraestructure
             });
             services.AddScoped<JwtSessionValidator>();
             services.AddSingleton(TimeProvider.System);
+            services.AddOptions<EmbeddingSettings>()
+                .Bind(configuration.GetSection(EmbeddingSettings.SectionName))
+                .Validate(
+                    settings => settings.EmbeddingDimension is > 0 and <= EmbeddingSettings.MaximumAzureSqlDimensions,
+                    $"Ollama:EmbeddingDimension debe estar entre 1 y {EmbeddingSettings.MaximumAzureSqlDimensions}.")
+                .ValidateOnStart();
             services.AddOptions<PasswordRecoverySettings>()
                 .Bind(configuration.GetSection(PasswordRecoverySettings.SectionName))
                 .Validate(settings => settings.CodePepper?.Length >= 32,
@@ -128,7 +151,6 @@ namespace VirtualBuddy.Infraestructure
 
             // AI Infrastructure
             services.AddScoped<IDocumentParser, DocumentParserService>();
-            services.AddScoped<IKnowledgeBaseService, PostgresKnowledgeBaseService>();
             services.AddScoped<IAIService, SemanticKernelAIService>();
 
 
@@ -162,6 +184,32 @@ namespace VirtualBuddy.Infraestructure
             });
 
             return services;
+        }
+
+        private static void ValidatePostgresConnectionString(string connectionString, string environmentName)
+        {
+            try
+            {
+                _ = new NpgsqlConnectionStringBuilder(connectionString);
+            }
+            catch (ArgumentException)
+            {
+                throw new InvalidOperationException(
+                    $"La configuracion 'ConnectionStrings:{environmentName}' no es una cadena PostgreSQL valida.");
+            }
+        }
+
+        private static void ValidateSqlServerConnectionString(string connectionString, string environmentName)
+        {
+            try
+            {
+                _ = new SqlConnectionStringBuilder(connectionString);
+            }
+            catch (ArgumentException)
+            {
+                throw new InvalidOperationException(
+                    $"La configuracion 'ConnectionStrings:{environmentName}' no es una cadena SQL Server valida.");
+            }
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)

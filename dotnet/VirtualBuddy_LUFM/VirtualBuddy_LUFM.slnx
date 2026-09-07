@@ -7,6 +7,7 @@
   </Folder>
   <Folder Name="/VirtualBuddy.Infraestructure/">
     <Project Path="VirtualBuddy.Infraestructure/VirtualBuddy.Infraestructure.csproj" />
+    <Project Path="VirtualBuddy.Migrations.SqlServer/VirtualBuddy.Migrations.SqlServer.csproj" />
   </Folder>
   <Folder Name="/VirtualBuddy.Test/">
     <Project Path="VirtualBuddy.Test/VirtualBuddy.Test.csproj" />
