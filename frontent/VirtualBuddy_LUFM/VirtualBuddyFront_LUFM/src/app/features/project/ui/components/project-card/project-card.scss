@@ -1,0 +1,97 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.project-card {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 0.2rem 0.5rem rgb(16 24 40 / 8%);
+}
+
+.project-image-frame {
+  display: grid;
+  place-items: center;
+  height: 9.5rem;
+  background: #f2f4f7;
+}
+
+.project-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-image--fallback {
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: contain;
+}
+
+.project-content {
+  padding: 1.15rem 1.25rem 1.3rem;
+}
+
+.project-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+h2 {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #101828;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+p {
+  margin: 0.65rem 0 0;
+  color: #667085;
+  line-height: 1.5;
+}
+
+.status {
+  flex: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  color: #344054;
+  background: #f2f4f7;
+  font-size: 0.8rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.status--active {
+  color: #067647;
+  background: #dcfae6;
+}
+
+.status--inactive {
+  color: #b42318;
+  background: #fee4e2;
+}
+
+.status--review {
+  color: #93370d;
+  background: #fef0c7;
+}
+
+.status--completed {
+  color: #175cd3;
+  background: #d1e9ff;
+}
+
+@media (max-width: 25rem) {
+  .project-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

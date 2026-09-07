@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { PROJECT_PROVIDERS } from './features/project/project.providers';
 import { authGuard } from './features/user/infrastructure/auth.guard';
 
 export const routes: Routes = [
@@ -17,6 +18,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        providers: PROJECT_PROVIDERS,
         loadComponent: () =>
           import('./features/dashboard/ui/pages/dashboard-page/dashboard-page').then(
             (component) => component.DashboardPage,

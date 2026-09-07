@@ -96,7 +96,8 @@
               "proxyConfig": "proxy.conf.json"
             },
             "dev": {
-              "buildTarget": "VirtualBuddyFront_LUFM:build:dev"
+              "buildTarget": "VirtualBuddyFront_LUFM:build:dev",
+              "proxyConfig": "proxy.dev.conf.json"
             },
             "test": {
               "buildTarget": "VirtualBuddyFront_LUFM:build:test"

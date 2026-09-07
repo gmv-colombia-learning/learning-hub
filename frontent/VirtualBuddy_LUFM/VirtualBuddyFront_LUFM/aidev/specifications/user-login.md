@@ -2,7 +2,7 @@
 
 ## Estado
 
-VERIFIED el 25 de agosto de 2026. Aprobada mediante las decisiones del usuario durante la solicitud de implementacion y ajustada por instruccion explicita para no modificar el backend.
+VERIFIED el 7 de septiembre de 2026. Aprobada mediante las decisiones del usuario durante la solicitud de implementacion, ajustada por instruccion explicita para no modificar el backend y actualizada para configurar el backend de development mediante proxy Angular.
 
 ## Intencion
 
@@ -17,7 +17,7 @@ Permitir que un usuario registrado se autentique contra la API de Virtual Buddy,
 - Proteccion del dashboard para usuarios no autenticados.
 - Cierre de sesion desde el area privada.
 - Configuraciones frontend independientes para `local`, `dev`, `test` y `prod`.
-- Proxy de desarrollo Angular para conectar localmente con la API .NET sin modificar el backend.
+- Proxies de desarrollo Angular para conectar con las APIs .NET de local y development sin modificar el backend.
 
 ## Fuera de alcance
 
@@ -25,7 +25,7 @@ Permitir que un usuario registrado se autentique contra la API de Virtual Buddy,
 - Recuperacion o cambio de contrasena.
 - Renovacion del token; el backend no expone refresh token.
 - Roles y permisos.
-- Definir las URL de API o los origenes frontend de `dev`, `test` y `prod`, que aun no existen.
+- Definir las URL de API o los origenes frontend de `test` y `prod`, que aun no existen.
 - Cambiar el contrato o los mensajes internos del backend.
 - Configurar CORS en el backend; cualquier necesidad de despliegue se reportara como nota.
 
@@ -75,8 +75,8 @@ Permitir que un usuario registrado se autentique contra la API de Virtual Buddy,
 
 ## Ambientes
 
-- `local`: Angular usa `/backend` y su proxy de desarrollo reenvia a `https://localhost:5001`; es la configuracion usada por `npm start`.
-- `dev`: URL de API pendiente.
+- `local`: Angular usa `/backend` y su proxy reenvia a `http://localhost:5089`; es la configuracion usada por `npm start` y `npm run start:local`.
+- `dev`: Angular usa `/backend` y su proxy reenvia a `http://localhost:5090`; es la configuracion usada por `npm run start:dev`.
 - `test`: URL de API pendiente.
 - `prod`: URL de API pendiente y configuracion de produccion por defecto.
 - Deben existir configuraciones de build y serve nombradas `local`, `dev`, `test` y `production`.
@@ -84,9 +84,9 @@ Permitir que un usuario registrado se autentique contra la API de Virtual Buddy,
 
 ## Integracion local
 
-- El frontend debe incluir un proxy usado unicamente por `ng serve` en ambiente local.
-- Las solicitudes con prefijo `/backend` deben reenviarse a `https://localhost:5001` eliminando ese prefijo.
-- El certificado local autofirmado de .NET no debe impedir el proxy de desarrollo.
+- El frontend debe incluir proxies usados unicamente por `ng serve` en los ambientes local y development.
+- En local, las solicitudes con prefijo `/backend` deben reenviarse a `http://localhost:5089` eliminando ese prefijo.
+- En development, las solicitudes con prefijo `/backend` deben reenviarse a `http://localhost:5090` eliminando ese prefijo.
 - El backend no se modifica dentro de esta spec.
 
 ## Criterios visuales y de accesibilidad
@@ -107,8 +107,8 @@ Permitir que un usuario registrado se autentique contra la API de Virtual Buddy,
 6. Dado un JWT vencido o malformado, la sesion se elimina y se trata al usuario como anonimo.
 7. Dada una sesion vigente, el login redirige al dashboard y las solicitudes de la API reciben el Bearer token.
 8. Dado el cierre de sesion, se elimina la sesion y las rutas privadas vuelven a estar protegidas.
-9. Los builds de los cuatro ambientes compilan y `local` usa la API .NET confirmada.
-10. `npm start` reenvia las solicitudes locales de `/backend` a `https://localhost:5001` sin requerir cambios CORS en .NET.
+9. Los builds de los cuatro ambientes compilan y `local` y `dev` usan las APIs .NET confirmadas.
+10. `npm start` y `npm run start:local` reenvian `/backend` a `http://localhost:5089`, mientras `npm run start:dev` lo reenvia a `http://localhost:5090`, sin requerir cambios CORS en .NET.
 
 ## Nota de despliegue
 

@@ -1,1 +1,36 @@
-<p>dashboard-page works!</p>
+<section class="projects" aria-labelledby="projects-title">
+  <header class="projects-header">
+    <p class="eyebrow">Project Hub</p>
+    <h1 id="projects-title">Proyectos</h1>
+    <p>Consulta los proyectos registrados y su estado actual.</p>
+  </header>
+
+  @let view = state();
+  @switch (view.status) {
+    @case ('loading') {
+      <div class="state-panel" role="status" aria-live="polite">
+        <span class="loader" aria-hidden="true"></span>
+        <p>Cargando proyectos...</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="state-panel state-panel--error" role="alert">
+        <p>No fue posible cargar los proyectos.</p>
+        <button type="button" (click)="retry()">Reintentar</button>
+      </div>
+    }
+    @case ('success') {
+      @if (view.projects.length === 0) {
+        <div class="state-panel" role="status">
+          <p>No hay proyectos disponibles.</p>
+        </div>
+      } @else {
+        <div class="project-grid">
+          @for (project of view.projects; track project.id) {
+            <app-project-card [project]="project" />
+          }
+        </div>
+      }
+    }
+  }
+</section>
