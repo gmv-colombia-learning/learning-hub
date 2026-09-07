@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using VirtualBuddy.Application.AI.UseCases;
 using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Application.DTOs.Response;
@@ -11,15 +12,18 @@ namespace VirtualBuddy.Application.Document.UseCases
         private readonly IRepository _repository;
         private readonly IFileStorageService _fileStorageService;
         private readonly IndexDocument _indexDocument;
+        private readonly ILogger<UploadDocument> _logger;
 
         public UploadDocument(
             IRepository repository,
             IFileStorageService fileStorageService,
-            IndexDocument indexDocument)
+            IndexDocument indexDocument,
+            ILogger<UploadDocument> logger)
         {
             _repository = repository;
             _fileStorageService = fileStorageService;
             _indexDocument = indexDocument;
+            _logger = logger;
         }
 
         public async Task<DocumentResponseDto> ExecuteAsync(
@@ -74,10 +78,12 @@ namespace VirtualBuddy.Application.Document.UseCases
                 {
                     await _indexDocument.ExecuteAsync(projectId, document.Id, indexStream, fileName);
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
-                    // For now, we don't want to fail the upload if indexing fails
-                    // In a production app, we might want to log this or use a background job
+                    _logger.LogError(
+                        "No se pudo indexar el documento {DocumentId}. Tipo: {ExceptionType}",
+                        document.Id,
+                        exception.GetType().Name);
                 }
             }
 

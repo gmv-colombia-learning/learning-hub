@@ -74,5 +74,18 @@ namespace VirtualBuddy.Infraestructure.Persistence
         {
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task ExecuteInTransactionAsync(Func<Task> operation)
+        {
+            if (!_dbContext.Database.IsRelational())
+            {
+                await operation();
+                return;
+            }
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            await operation();
+            await transaction.CommitAsync();
+        }
     }
 }

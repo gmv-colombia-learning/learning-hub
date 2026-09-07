@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Data;
@@ -253,12 +255,35 @@ namespace VirtualBuddy.Infraestructure.Identity
 
         private async Task AcquireLockAsync(string key, CancellationToken cancellationToken)
         {
-            if (!_dbContext.Database.IsNpgsql())
+            if (_dbContext.Database.IsNpgsql())
+            {
+                await _dbContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))",
+                    cancellationToken);
+                return;
+            }
+
+            if (!_dbContext.Database.IsSqlServer())
                 return;
 
-            await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                $"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))",
-                cancellationToken);
+            var transaction = _dbContext.Database.CurrentTransaction
+                ?? throw new InvalidOperationException("Se requiere una transaccion activa para adquirir el bloqueo.");
+            await using var command = _dbContext.Database.GetDbConnection().CreateCommand();
+            command.Transaction = transaction.GetDbTransaction();
+            command.CommandText = """
+                DECLARE @result int;
+                EXEC @result = sys.sp_getapplock
+                    @Resource = @resource,
+                    @LockMode = 'Exclusive',
+                    @LockOwner = 'Transaction',
+                    @LockTimeout = 15000;
+                SELECT @result;
+                """;
+            command.Parameters.Add(new SqlParameter("@resource", SqlDbType.NVarChar, 255) { Value = key });
+
+            var result = Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
+            if (result < 0)
+                throw new InvalidOperationException("No fue posible adquirir el bloqueo de recuperacion de contrasena.");
         }
 
         private string HashValue(string value)

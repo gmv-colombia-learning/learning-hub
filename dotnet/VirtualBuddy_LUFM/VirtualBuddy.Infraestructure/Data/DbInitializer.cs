@@ -12,28 +12,29 @@ namespace VirtualBuddy.Infraestructure.Data
     {
         public static async Task SeedAsync(BuddyDBContext context, UserManager<ApplicationUser> userManager)
         {
-            context.Database.EnsureCreated();
+            await using var transaction = context.Database.IsRelational()
+                ? await context.Database.BeginTransactionAsync()
+                : null;
 
-            if (await context.Technologies.AnyAsync()) return;
-
-            // 1. Seed Technologies
-            var technologies = new List<Technology>
+            var technologyNames = new[]
             {
-                new Technology(".NET 10"),
-                new Technology("React"),
-                new Technology("Angular"),
-                new Technology("PostgreSQL"),
-                new Technology("EF Core"),
-                new Technology("Docker"),
-                new Technology("Azure"),
-                new Technology("Python"),
-                new Technology("FastAPI"),
-                new Technology("Tailwind CSS"),
-                new Technology("OpenAI / RAG")
+                ".NET 10", "React", "Angular", "PostgreSQL", "EF Core", "Docker",
+                "Azure", "Python", "FastAPI", "Tailwind CSS", "OpenAI / RAG"
             };
 
-            await context.Technologies.AddRangeAsync(technologies);
-            await context.SaveChangesAsync();
+            // 1. Seed Technologies
+            var technologies = await context.Technologies.ToListAsync();
+            var existingNames = technologies.Select(technology => technology.Name).ToHashSet();
+            var missingTechnologies = technologyNames
+                .Where(name => !existingNames.Contains(name))
+                .Select(name => new Technology(name))
+                .ToList();
+            if (missingTechnologies.Count > 0)
+            {
+                await context.Technologies.AddRangeAsync(missingTechnologies);
+                technologies.AddRange(missingTechnologies);
+                await context.SaveChangesAsync();
+            }
 
             // 2. Seed User
             var adminUser = new ApplicationUser
@@ -46,7 +47,12 @@ namespace VirtualBuddy.Infraestructure.Data
 
             if (await userManager.FindByEmailAsync(adminUser.Email) == null)
             {
-                await userManager.CreateAsync(adminUser, "P@ssword123!");
+                var createResult = await userManager.CreateAsync(adminUser, "P@ssword123!");
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(error => error.Description));
+                    throw new InvalidOperationException($"No se pudo crear el usuario inicial: {errors}");
+                }
             }
             else
             {
@@ -106,6 +112,9 @@ namespace VirtualBuddy.Infraestructure.Data
                 await context.Projects.AddRangeAsync(projects);
                 await context.SaveChangesAsync();
             }
+
+            if (transaction is not null)
+                await transaction.CommitAsync();
         }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using System.Net;
 using VirtualBuddy.Api.Middleware;
@@ -8,6 +9,7 @@ using VirtualBuddy.Infraestructure;
 using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Data;
 using VirtualBuddy.Infraestructure.Identity;
+using VirtualBuddy.Infraestructure.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,12 +116,17 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<BuddyDBContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        await DbInitializer.SeedAsync(context, userManager);
+        var embeddingSettings = services.GetRequiredService<IOptions<EmbeddingSettings>>();
+        await DatabaseStartup.ValidateAndSeedAsync(context, userManager, embeddingSettings);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogCritical(
+            "No se pudo inicializar la base de datos. Tipo: {ExceptionType}. Mensaje: {Message}",
+            ex.GetType().Name,
+            ex.Message);
+        throw;
     }
 }
 
