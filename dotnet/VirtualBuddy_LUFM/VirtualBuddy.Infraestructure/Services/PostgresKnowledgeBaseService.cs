@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Infraestructure.data;
 using VirtualBuddy.Infraestructure.Util;
@@ -54,7 +54,7 @@ namespace VirtualBuddy.Infraestructure.Services
             EmbeddingValidator.Validate(queryEmbedding, _embeddingDimension);
             if (limit <= 0)
                 return [];
-            
+
             var sql = @"
                 SELECT ""Content""
                 FROM (
