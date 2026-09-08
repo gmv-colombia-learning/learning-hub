@@ -2,7 +2,7 @@
 
 ## Estado
 
-VERIFIED el 1 de septiembre de 2026. Aprobada mediante decisiones explicitas del usuario durante la solicitud de implementacion y actualizada para mostrar una imagen de respaldo cuando un proyecto no tenga una imagen disponible.
+VERIFIED el 1 de septiembre de 2026. Aprobada mediante decisiones explicitas del usuario durante la solicitud de implementacion y actualizada para mostrar una imagen de respaldo cuando un proyecto no tenga una imagen disponible. La navegacion posterior al detalle esta definida por `project-detail.md`.
 
 ## Intencion
 
@@ -20,7 +20,7 @@ Permitir que un usuario autenticado consulte desde Home todos los proyectos regi
 ## Fuera de alcance
 
 - Filtrar, buscar, ordenar o paginar proyectos.
-- Navegar al detalle de un proyecto o implementar su pantalla.
+- Navegar al detalle de un proyecto o implementar su pantalla dentro del alcance original; este comportamiento posterior se rige por `project-detail.md`.
 - Mostrar o implementar el acceso a Administracion.
 - Crear, editar o eliminar proyectos.
 - Mostrar tecnologias, miembros, tiempo de desarrollo o informacion de arquitectura.
@@ -83,7 +83,7 @@ interface ProjectDto {
 2. Mientras la solicitud esta pendiente, Home debe comunicar que los proyectos se estan cargando.
 3. Al recibir proyectos, Home debe conservar el orden de la respuesta y mostrar una tarjeta por cada elemento.
 4. Cada tarjeta debe mostrar `urlImage`, `name`, `description` y la etiqueta en espanol correspondiente a `status`.
-5. Las tarjetas son informativas y no deben navegar ni simular acciones en este alcance.
+5. Las tarjetas eran informativas en este alcance original. Su navegacion posterior se rige por `project-detail.md`.
 6. El titulo debe referirse a `Proyectos`, no a `Proyectos Activos`, porque la API devuelve todos los estados.
 7. Al recibir `[]`, Home debe mostrar `No hay proyectos disponibles.`.
 8. Ante cualquier error de consulta, Home debe mostrar `No fue posible cargar los proyectos.` y un boton `Reintentar`.
@@ -110,7 +110,7 @@ interface ProjectDto {
 4. Dada una respuesta vacia, se muestra el mensaje aprobado y no se renderizan tarjetas.
 5. Dado un fallo HTTP o de red, se muestra el mensaje aprobado y se ofrece reintentar.
 6. Dado un error seguido de un reintento exitoso, se reemplaza el error por el listado sin recargar la pagina.
-7. Las tarjetas no navegan y Home no muestra Administracion.
+7. Home no muestra Administracion. La navegacion posterior de las tarjetas se valida contra `project-detail.md`.
 8. El encabezado privado y el cierre de sesion conservan su comportamiento verificado.
 9. La pantalla funciona desde 320 px, sin desplazamiento horizontal y con estados accesibles.
 10. Un proyecto sin imagen disponible muestra `/sin-imagen.png` centrada, contenida sobre un fondo neutro y no presenta una imagen rota.

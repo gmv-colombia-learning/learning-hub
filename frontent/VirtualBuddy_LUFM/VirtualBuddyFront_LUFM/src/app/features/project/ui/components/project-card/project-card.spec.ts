@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { ProjectStatus } from '../../../domain/project-summary';
 import { ProjectCard } from './project-card';
 
@@ -6,7 +7,10 @@ describe('ProjectCard', () => {
   let fixture: ComponentFixture<ProjectCard>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ProjectCard] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ProjectCard],
+      providers: [provideRouter([])],
+    }).compileComponents();
     fixture = TestBed.createComponent(ProjectCard);
   });
 
@@ -29,7 +33,7 @@ describe('ProjectCard', () => {
     expect(fixture.nativeElement.querySelector('.status').textContent.trim()).toBe(label);
   });
 
-  it('renders the approved project summary without an interactive action', () => {
+  it('renders the approved project summary as a single detail link', () => {
     fixture.componentRef.setInput('project', {
       id: 'project-1',
       name: 'Virtual Buddy',
@@ -42,7 +46,10 @@ describe('ProjectCard', () => {
     const image = fixture.nativeElement.querySelector('img') as HTMLImageElement;
     expect(image.alt).toBe('Virtual Buddy');
     expect(fixture.nativeElement.textContent).toContain('Mentoria virtual');
-    expect(fixture.nativeElement.querySelector('a, button')).toBeNull();
+    const links = fixture.nativeElement.querySelectorAll('a');
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute('href')).toBe('/projects/project-1');
+    expect(fixture.nativeElement.querySelector('button')).toBeNull();
   });
 
   it('uses the fallback image when the project has no image URL', () => {

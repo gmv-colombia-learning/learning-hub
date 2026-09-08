@@ -1,0 +1,110 @@
+<section class="project-detail" aria-labelledby="project-title">
+  <a class="back-link" routerLink="/">
+    <span aria-hidden="true">&larr;</span>
+    Volver al Dashboard
+  </a>
+
+  @let view = state();
+  @switch (view.status) {
+    @case ('loading') {
+      <div class="state-panel" role="status" aria-live="polite">
+        <span class="loader" aria-hidden="true"></span>
+        <p>Cargando proyecto...</p>
+      </div>
+    }
+    @case ('not-found') {
+      <div class="state-panel state-panel--error" role="alert">
+        <h1 id="project-title">Proyecto no encontrado.</h1>
+        <a routerLink="/">Volver al Dashboard</a>
+      </div>
+    }
+    @case ('error') {
+      <div class="state-panel state-panel--error" role="alert">
+        <h1 id="project-title">No fue posible cargar el proyecto.</h1>
+        <button type="button" (click)="retry()">Reintentar</button>
+      </div>
+    }
+    @case ('success') {
+      <div class="project-hero" aria-hidden="true">
+        <span class="document-icon">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M7 3h7l4 4v14H7zM14 3v5h4M10 12h5M10 16h5" />
+          </svg>
+        </span>
+      </div>
+
+      <article class="detail-card">
+        <header class="detail-heading">
+          <h1 id="project-title">{{ view.project.name }}</h1>
+          <span class="status" [class]="'status status--' + statusClass(view.project.status)">
+            {{ statusLabel(view.project.status) }}
+          </span>
+        </header>
+
+        <section class="description" aria-labelledby="description-title">
+          <h2 id="description-title">Descripcion del Proyecto</h2>
+          <p>{{ view.project.description }}</p>
+        </section>
+
+        <div class="project-facts">
+          <section aria-labelledby="technologies-title">
+            <h2 id="technologies-title">
+              <span aria-hidden="true">&lt;/&gt;</span>
+              Tecnologias
+            </h2>
+            @if (view.project.technologies.length) {
+              <ul class="technology-list">
+                @for (technology of view.project.technologies; track technology.id) {
+                  <li>{{ technology.name }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-copy">No hay tecnologias registradas.</p>
+            }
+          </section>
+
+          <section aria-labelledby="duration-title">
+            <h2 id="duration-title">
+              <span aria-hidden="true">&#128197;</span>
+              Tiempo de Desarrollo
+            </h2>
+            <p class="fact-value">
+              {{ developmentDuration(view.project.developmentStartedAt) }}
+            </p>
+          </section>
+        </div>
+
+        @if (hasArchitecture(view.project)) {
+          <section class="architecture" aria-labelledby="architecture-title">
+            <h2 id="architecture-title">Arquitectura</h2>
+            <p>{{ view.project.architectureInfo }}</p>
+          </section>
+        }
+
+        <section class="team" aria-labelledby="team-title">
+          <h2 id="team-title">
+            <span aria-hidden="true">&#9786;</span>
+            Equipo de Trabajo
+          </h2>
+          @if (view.project.members.length) {
+            <ul class="member-list">
+              @for (member of view.project.members; track member.userId; let index = $index) {
+                <li>
+                  <span class="avatar" [class]="'avatar avatar--' + (index % 4)" aria-hidden="true">
+                    {{ memberInitials(member.fullName) }}
+                  </span>
+                  <span>
+                    <strong>{{ member.fullName }}</strong>
+                    <small>{{ member.role }}</small>
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-copy">No hay miembros registrados.</p>
+          }
+        </section>
+      </article>
+    }
+  }
+</section>

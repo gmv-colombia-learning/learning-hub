@@ -1,4 +1,5 @@
 import { Provider } from '@angular/core';
+import { GetProjectDetailsUseCase } from './application/get-project-details.use-case';
 import { ListProjectsUseCase } from './application/list-projects.use-case';
 import { ProjectRepository } from './application/project.repository';
 import { ProjectHttpRepository } from './infrastructure/project.http-repository';
@@ -13,6 +14,11 @@ export const PROJECT_PROVIDERS: Provider[] = [
   {
     provide: ListProjectsUseCase,
     useFactory: (repository: ProjectRepository) => new ListProjectsUseCase(repository),
+    deps: [PROJECT_REPOSITORY],
+  },
+  {
+    provide: GetProjectDetailsUseCase,
+    useFactory: (repository: ProjectRepository) => new GetProjectDetailsUseCase(repository),
     deps: [PROJECT_REPOSITORY],
   },
 ];

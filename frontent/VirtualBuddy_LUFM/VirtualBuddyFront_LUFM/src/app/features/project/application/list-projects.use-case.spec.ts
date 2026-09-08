@@ -21,7 +21,10 @@ describe('ListProjectsUseCase', () => {
         imageUrl: 'first.png',
       },
     ];
-    const repository: ProjectRepository = { getAll: vi.fn(() => of(projects)) };
+    const repository: ProjectRepository = {
+      getAll: vi.fn(() => of(projects)),
+      getById: vi.fn(),
+    };
     let result: unknown;
 
     new ListProjectsUseCase(repository).execute().subscribe((value) => (result = value));

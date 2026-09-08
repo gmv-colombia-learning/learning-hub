@@ -16,7 +16,7 @@ export interface ProjectDto {
   description: string;
   developmentTime: string;
   status: 0 | 1 | 2 | 3 | 4;
-  urlImage: string;
+  urlImage: string | null;
   architectureInfo: string | null;
   technologies: ProjectTechnologyDto[];
   members: ProjectMemberDto[];

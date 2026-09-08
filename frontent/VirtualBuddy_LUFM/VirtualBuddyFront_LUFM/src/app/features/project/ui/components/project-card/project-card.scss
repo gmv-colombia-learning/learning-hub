@@ -3,6 +3,19 @@
   min-width: 0;
 }
 
+.project-link {
+  display: block;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+
+  &:focus-visible {
+    border-radius: 1rem;
+    outline: 0.2rem solid #fda29b;
+    outline-offset: 0.2rem;
+  }
+}
+
 .project-card {
   height: 100%;
   overflow: hidden;
@@ -10,6 +23,11 @@
   border-radius: 1rem;
   background: white;
   box-shadow: 0 0.2rem 0.5rem rgb(16 24 40 / 8%);
+}
+
+.project-link:hover .project-card {
+  border-color: #fda29b;
+  box-shadow: 0 0.4rem 1rem rgb(16 24 40 / 12%);
 }
 
 .project-image-frame {
