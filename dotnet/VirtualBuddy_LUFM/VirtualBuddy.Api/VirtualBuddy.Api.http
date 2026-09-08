@@ -1,4 +1,4 @@
-@VirtualBuddy.Api_HostAddress = http://localhost:5089
+@VirtualBuddy.Api_HostAddress = https://localhost:7089
 
 GET {{VirtualBuddy.Api_HostAddress}}/weatherforecast/
 Accept: application/json
