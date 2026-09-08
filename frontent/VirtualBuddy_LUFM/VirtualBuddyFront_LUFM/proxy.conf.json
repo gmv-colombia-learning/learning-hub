@@ -1,6 +1,6 @@
 {
   "/backend": {
-    "target": "http://localhost:5089",
+    "target": "https://localhost:7089",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {

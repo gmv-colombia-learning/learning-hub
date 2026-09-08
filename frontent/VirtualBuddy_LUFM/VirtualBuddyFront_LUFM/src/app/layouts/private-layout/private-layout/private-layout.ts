@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SessionService } from '../../../features/user/infrastructure/session.service';
 
 @Component({
   selector: 'app-private-layout',
-  imports: [RouterLink, RouterOutlet],
+  imports: [MatButton, RouterLink, RouterOutlet],
   templateUrl: './private-layout.html',
   styleUrl: './private-layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

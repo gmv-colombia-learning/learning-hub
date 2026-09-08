@@ -256,14 +256,14 @@ p {
   a,
   button {
     padding: 0.7rem 1rem;
-    border: 0;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  a {
     border-radius: 0.6rem;
     color: white;
     background: #d92d20;
-    font: inherit;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
   }
 }
 

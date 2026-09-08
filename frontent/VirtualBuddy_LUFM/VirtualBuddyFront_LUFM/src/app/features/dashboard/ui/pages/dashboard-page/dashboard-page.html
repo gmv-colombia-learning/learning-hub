@@ -16,7 +16,7 @@
     @case ('error') {
       <div class="state-panel state-panel--error" role="alert">
         <p>No fue posible cargar los proyectos.</p>
-        <button type="button" (click)="retry()">Reintentar</button>
+        <button matButton="filled" type="button" (click)="retry()">Reintentar</button>
       </div>
     }
     @case ('success') {

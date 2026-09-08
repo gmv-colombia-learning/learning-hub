@@ -2,7 +2,7 @@
   <a class="brand" routerLink="/">Project Hub</a>
   <div class="session-actions">
     <span>{{ user()?.fullName || user()?.email }}</span>
-    <button type="button" (click)="logout()">Cerrar sesion</button>
+    <button matButton="outlined" type="button" (click)="logout()">Cerrar sesion</button>
   </div>
 </header>
 <main class="private-content">

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { AuthenticationError } from '../../../application/authentication.error';
 import { LoginUseCase } from '../../../application/login.use-case';
 import { LoginPage } from './login-page';
@@ -37,6 +37,26 @@ describe('LoginPage', () => {
     expect(login.execute).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain('El correo es obligatorio.');
     expect(fixture.nativeElement.textContent).toContain('La contrasena es obligatoria.');
+  });
+
+  it('renders Material fields and a filled submit button', () => {
+    expect(fixture.nativeElement.querySelectorAll('mat-form-field')).toHaveLength(2);
+    expect(fixture.nativeElement.querySelector('button[matButton="filled"]')).toBeTruthy();
+  });
+
+  it('disables the submit button while authentication is pending', () => {
+    login.execute.mockReturnValue(new Subject());
+    fillInput('#email', 'user@example.com');
+    fillInput('#password', 'Password1');
+
+    submitForm();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    expect(button.textContent).toContain('Iniciando sesion...');
   });
 
   it('submits credentials and restores the requested private URL', () => {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { MatButton } from '@angular/material/button';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { ListProjectsUseCase } from '../../../../project/application/list-projects.use-case';
 import { ProjectSummary } from '../../../../project/domain/project-summary';
@@ -12,7 +13,7 @@ type ProjectListState =
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [ProjectCard],
+  imports: [MatButton, ProjectCard],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

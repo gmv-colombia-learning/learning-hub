@@ -69,53 +69,15 @@ h1 {
   font-size: 1.05rem;
 }
 
-form,
-.field {
-  display: grid;
-}
-
 form {
+  display: grid;
   gap: 1.5rem;
 }
 
-.field {
-  gap: 0.55rem;
-}
-
-label {
-  color: #101828;
-  font-weight: 700;
-}
-
-input {
+.login-field {
   width: 100%;
-  min-height: 3.65rem;
-  padding: 0 1rem;
-  border: 1px solid #cfd4dc;
-  border-radius: 0.8rem;
-  color: #101828;
-  background: white;
-  font: inherit;
-  transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease;
-
-  &::placeholder {
-    color: #98a2b3;
-  }
-
-  &:focus-visible {
-    border-color: #eb002d;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgb(235 0 45 / 14%);
-  }
-
-  &[aria-invalid='true'] {
-    border-color: #d92d20;
-  }
 }
 
-.field-error,
 .form-error {
   margin: 0;
   color: #b42318;
@@ -128,36 +90,13 @@ input {
   background: #fef3f2;
 }
 
-button {
+.submit-button {
+  width: 100%;
   min-height: 3.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-  border: 0;
-  border-radius: 0.8rem;
-  color: white;
-  background: #eb002d;
-  font: inherit;
   font-weight: 750;
-  cursor: pointer;
-  transition:
-    background 140ms ease,
-    transform 140ms ease;
-
-  &:hover:not(:disabled) {
-    background: #c90027;
-    transform: translateY(-1px);
-  }
-
-  &:focus-visible {
-    outline: 0.2rem solid #101828;
-    outline-offset: 0.2rem;
-  }
 
   &:disabled {
     cursor: wait;
-    opacity: 0.65;
   }
 }
 

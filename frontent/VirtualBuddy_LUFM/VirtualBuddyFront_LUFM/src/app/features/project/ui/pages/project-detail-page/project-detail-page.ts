@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { MatButton } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { GetProjectDetailsUseCase } from '../../../application/get-project-details.use-case';
@@ -16,7 +17,7 @@ type ProjectDetailState =
 
 @Component({
   selector: 'app-project-detail-page',
-  imports: [RouterLink],
+  imports: [MatButton, RouterLink],
   templateUrl: './project-detail-page.html',
   styleUrl: './project-detail-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
