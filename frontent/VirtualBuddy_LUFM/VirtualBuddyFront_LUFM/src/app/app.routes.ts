@@ -24,6 +24,14 @@ export const routes: Routes = [
             (component) => component.DashboardPage,
           ),
       },
+      {
+        path: 'projects/:id',
+        providers: PROJECT_PROVIDERS,
+        loadComponent: () =>
+          import('./features/project/ui/pages/project-detail-page/project-detail-page').then(
+            (component) => component.ProjectDetailPage,
+          ),
+      },
     ],
   },
   {

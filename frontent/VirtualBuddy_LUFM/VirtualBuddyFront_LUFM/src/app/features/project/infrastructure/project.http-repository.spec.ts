@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
+import { ProjectNotFoundError } from '../application/project-query.error';
 import { ProjectStatus } from '../domain/project-summary';
 import { ProjectDto } from './project.dto';
 import { ProjectHttpRepository } from './project.http-repository';
@@ -53,6 +54,37 @@ describe('ProjectHttpRepository', () => {
       .flush({}, { status: 500, statusText: 'Server Error' });
 
     expect(result).toBeTruthy();
+  });
+
+  it('requests and maps a project with all detail fields', () => {
+    let result: unknown;
+    repository.getById('project-1').subscribe((project) => (result = project));
+
+    const request = http.expectOne('https://localhost:5001/api/project/project-1');
+    expect(request.request.method).toBe('GET');
+    request.flush(projectDto());
+
+    expect(result).toEqual({
+      id: 'project-1',
+      name: 'Virtual Buddy',
+      description: 'Mentoria virtual',
+      developmentStartedAt: '2026-08-31T12:00:00Z',
+      status: ProjectStatus.Review,
+      architectureInfo: null,
+      technologies: [{ id: 'technology-1', name: 'Angular' }],
+      members: [{ userId: 'user-1', fullName: 'User Name', role: 'Developer' }],
+    });
+  });
+
+  it('translates a detail 404 to a project not found error', () => {
+    let result: unknown;
+    repository.getById('missing').subscribe({ error: (error: unknown) => (result = error) });
+
+    http
+      .expectOne('https://localhost:5001/api/project/missing')
+      .flush({}, { status: 404, statusText: 'Not Found' });
+
+    expect(result).toBeInstanceOf(ProjectNotFoundError);
   });
 
   function projectDto(): ProjectDto {

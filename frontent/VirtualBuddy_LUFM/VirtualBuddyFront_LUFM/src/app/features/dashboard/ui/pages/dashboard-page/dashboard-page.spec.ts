@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { ListProjectsUseCase } from '../../../../project/application/list-projects.use-case';
 import { ProjectStatus, ProjectSummary } from '../../../../project/domain/project-summary';
@@ -13,7 +14,7 @@ describe('DashboardPage', () => {
     listProjects = { execute: vi.fn(() => of(projects)) };
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
-      providers: [{ provide: ListProjectsUseCase, useValue: listProjects }],
+      providers: [provideRouter([]), { provide: ListProjectsUseCase, useValue: listProjects }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
