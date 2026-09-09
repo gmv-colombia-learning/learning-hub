@@ -22,8 +22,8 @@ namespace VirtualBuddy.Api.Controller
         /// </summary>
         [HttpPost("projects/{projectId}/documents")]
         public async Task<ActionResult<DocumentResponseDto>> UploadDocument(
-            Guid projectId, 
-            IFormFile file, 
+            Guid projectId,
+            IFormFile file,
             [FromForm] string? description)
         {
             if (file == null || file.Length == 0)

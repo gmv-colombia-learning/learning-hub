@@ -1,9 +1,12 @@
 using FluentAssertions;
+using Microsoft.Extensions.AI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using VirtualBuddy.Application.Common.Interfaces;
 using VirtualBuddy.Infraestructure;
 using VirtualBuddy.Infraestructure.data;
@@ -54,6 +57,66 @@ namespace VirtualBuddy.Test.Infraestructure
             sqlConnection.Database.Should().Be("VirtualBuddy");
             provider.GetRequiredService<IKnowledgeBaseService>()
                 .Should().BeOfType<SqlServerKnowledgeBaseService>();
+        }
+
+        [Fact]
+        public void AddInfraConfigureServices_ShouldUseOllamaForLocal()
+        {
+            var configuration = CreateConfiguration(
+                "Local",
+                "Host=localhost;Database=test;Username=test;Password=test");
+            var services = new ServiceCollection();
+
+            services.AddInfraConfigureServices(configuration, "Local");
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<AzureOpenAIDevelopmentCertificateValidator>().Should().BeNull();
+            var kernel = provider.GetRequiredService<Kernel>();
+            kernel.GetRequiredService<IChatCompletionService>().Should().NotBeNull();
+            kernel.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>()
+                .Should().NotBeNull();
+        }
+
+        [Fact]
+        public void AddInfraConfigureServices_ShouldUseAzureOpenAIForDevelopment()
+        {
+            var configuration = CreateConfiguration(
+                "Development",
+                "Server=example.database.windows.net;Database=test;User ID=test;Password=Test.123;Encrypt=True");
+            var services = new ServiceCollection();
+
+            services.AddInfraConfigureServices(configuration, "Development");
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<AzureOpenAIDevelopmentCertificateValidator>()
+                .Should().NotBeNull();
+            var kernel = provider.GetRequiredService<Kernel>();
+            kernel.GetRequiredService<IChatCompletionService>().GetType().Name.Should().Contain("AzureOpenAI");
+            kernel.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>()
+                .Should().NotBeNull();
+            provider.GetRequiredService<IOptions<EmbeddingSettings>>().Value.EmbeddingDimension.Should().Be(768);
+        }
+
+        [Theory]
+        [InlineData("", "test-key")]
+        [InlineData("https://example.openai.azure.com", "")]
+        [InlineData("http://example.openai.azure.com", "test-key")]
+        public void AzureOpenAISettings_ShouldRejectInvalidConfiguration(string endpoint, string apiKey)
+        {
+            var configuration = CreateConfiguration(
+                "Development",
+                "Server=example.database.windows.net;Database=test;User ID=test;Password=Test.123;Encrypt=True",
+                azureOpenAIEndpoint: endpoint,
+                azureOpenAIApiKey: apiKey);
+            var services = new ServiceCollection();
+            services.AddInfraConfigureServices(configuration, "Development");
+
+            using var provider = services.BuildServiceProvider();
+            var action = () => provider.GetRequiredService<IOptions<AzureOpenAISettings>>().Value;
+
+            action.Should().Throw<OptionsValidationException>()
+                .WithMessage("*AzureOpenAI*")
+                .Which.Message.Should().NotContain("test-key");
         }
 
         [Fact]
@@ -115,7 +178,9 @@ namespace VirtualBuddy.Test.Infraestructure
         private static IConfiguration CreateConfiguration(
             string? environmentName,
             string? connectionString,
-            string embeddingDimension = "768")
+            string embeddingDimension = "768",
+            string azureOpenAIEndpoint = "https://example.openai.azure.com",
+            string azureOpenAIApiKey = "test-key")
         {
             var values = new Dictionary<string, string?>
             {
@@ -124,7 +189,12 @@ namespace VirtualBuddy.Test.Infraestructure
                 ["Supabase:Key"] = "test-key",
                 ["Supabase:BucketName"] = "documents",
                 ["Supabase:ProjectImagesBucketName"] = "images",
-                ["Ollama:EmbeddingDimension"] = embeddingDimension
+                ["Ollama:EmbeddingDimension"] = embeddingDimension,
+                ["AzureOpenAI:Endpoint"] = azureOpenAIEndpoint,
+                ["AzureOpenAI:ApiKey"] = azureOpenAIApiKey,
+                ["AzureOpenAI:ChatDeploymentName"] = "chat-deployment",
+                ["AzureOpenAI:EmbeddingDeploymentName"] = "embedding-deployment",
+                ["AzureOpenAI:EmbeddingDimension"] = embeddingDimension
             };
 
             if (environmentName is not null && connectionString is not null)

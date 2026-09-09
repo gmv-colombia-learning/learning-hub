@@ -36,7 +36,7 @@ namespace VirtualBuddy.Application.AI.UseCases
                 chunkData.Add((chunk, embedding, $@"{{""source"": ""{fileName}""}}"));
             }
 
-            // 4. Guardar en Vector Store (Postgres)
+            // 4. Guardar en el vector store configurado para el ambiente
             await _knowledgeBaseService.AddChunksAsync(projectId, documentId, chunkData);
         }
 

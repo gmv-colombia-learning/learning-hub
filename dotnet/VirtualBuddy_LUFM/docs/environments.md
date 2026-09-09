@@ -33,7 +33,29 @@ Cada ambiente contiene su conexion completa en el archivo correspondiente:
 
 Cada perfil selecciona exclusivamente la cadena con su mismo nombre. No existe fallback entre proveedores.
 
-La seccion `Ollama` debe declarar `EmbeddingDimension`. El valor debe coincidir con el modelo de embeddings y con la dimension `VECTOR(n)` de las migraciones. Cambiarlo requiere una migracion y reindexar los documentos.
+La seccion `Ollama` de Local y la seccion `AzureOpenAI` de Development deben declarar `EmbeddingDimension`. El valor debe coincidir con el modelo de embeddings y con la dimension `VECTOR(n)` de las migraciones. Cambiarlo requiere una migracion y reindexar los documentos.
+
+## Configurar los proveedores de IA
+
+`Local` usa Ollama con los valores de `Ollama` y no requiere credenciales externas.
+
+`Development` usa Azure OpenAI directamente, sin Azure AI Search. `appsettings.Development.json` debe contener:
+
+```json
+"AzureOpenAI": {
+  "Endpoint": "https://<resource-name>.openai.azure.com",
+  "ApiKey": "<api-key>",
+  "ChatDeploymentName": "<chat-deployment>",
+  "EmbeddingDeploymentName": "<embedding-deployment>",
+  "EmbeddingDimension": 768
+}
+```
+
+El endpoint requerido es el del recurso OpenAI y no el endpoint de proyecto de Foundry terminado en `/api/projects/<project-name>`. Los nombres configurados son los nombres de deployment creados en Azure, no necesariamente los nombres base de los modelos.
+
+En `Development`, el cliente exclusivo de Azure OpenAI tolera temporalmente cadenas TLS cuyo unico error sea que el estado de revocacion no puede determinarse. Este workaround permite ejecutar el prototipo bajo la inspeccion TLS corporativa actual, no afecta otros clientes HTTP y no acepta certificados revocados, vencidos, no confiables o emitidos para otro hostname. Debe retirarse cuando la politica de Netskope proporcione una cadena con AIA/CRL validos o excluya estos endpoints de la inspeccion.
+
+Aunque Ollama y Azure OpenAI generen vectores de 768 dimensiones, sus espacios vectoriales no son compatibles. Al cambiar Development a Azure OpenAI se deben eliminar los `KnowledgeChunks` anteriores y volver a indexar sus documentos antes de validar el chat RAG.
 
 ## Aplicar migraciones
 

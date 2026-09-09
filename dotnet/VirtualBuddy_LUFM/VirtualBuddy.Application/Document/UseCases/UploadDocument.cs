@@ -39,6 +39,8 @@ namespace VirtualBuddy.Application.Document.UseCases
             if (project == null)
                 throw new KeyNotFoundException($"Project with ID {projectId} not found.");
 
+            var effectiveContentType = ResolveContentType(fileName, contentType);
+
             // Create a copy of the stream for indexing because some storage services might close it
             using var indexStream = new MemoryStream();
             await fileStream.CopyToAsync(indexStream);
@@ -46,18 +48,18 @@ namespace VirtualBuddy.Application.Document.UseCases
             indexStream.Position = 0;
 
             // 2. Subir archivo al storage
-            var storagePath = await _fileStorageService.UploadFileAsync(fileName, fileStream, contentType);
+            var storagePath = await _fileStorageService.UploadFileAsync(fileName, fileStream, effectiveContentType);
             var publicUrl = await _fileStorageService.GetSignedUrlAsync(storagePath);
 
             // 3. Crear entidad de dominio
             var document = VirtualBuddy.Domain.Document.Document.Create(
                 name: fileName,
                 size: FormatFileSize(fileSize),
-                type: MapContentTypeToDocumentType(contentType),
+                type: MapContentTypeToDocumentType(effectiveContentType),
                 projectId: projectId,
                 storagePath: storagePath,
                 publicUrl: publicUrl,
-                contentType: contentType,
+                contentType: effectiveContentType,
                 description: description
             );
 
@@ -66,11 +68,7 @@ namespace VirtualBuddy.Application.Document.UseCases
             await _repository.SaveChangesAsync();
 
             // 5. Trigger AI Indexation for supported document types
-            bool isSupportedByAI = contentType.Contains("pdf") || 
-                                   contentType.Contains("word") || 
-                                   contentType.Contains("excel") || 
-                                   contentType.Contains("officedocument") || 
-                                   contentType.Contains("text/plain");
+            bool isSupportedByAI = IsSupportedByAI(effectiveContentType);
 
             if (document.Type == DocumentType.File && isSupportedByAI)
             {
@@ -111,11 +109,41 @@ namespace VirtualBuddy.Application.Document.UseCases
             return num.ToString() + suf[place];
         }
 
-        private DocumentType MapContentTypeToDocumentType(string contentType)
+        private static string ResolveContentType(string fileName, string declaredContentType)
         {
-            if (contentType.StartsWith("image/")) return DocumentType.Image;
-            if (contentType.StartsWith("video/")) return DocumentType.Video;
-            if (contentType.Contains("pdf") || contentType.Contains("word") || contentType.Contains("text")) return DocumentType.File;
+            if (!string.Equals(
+                    declaredContentType,
+                    "application/octet-stream",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return declaredContentType;
+            }
+
+            return Path.GetExtension(fileName).ToLowerInvariant() switch
+            {
+                ".pdf" => "application/pdf",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".xls" => "application/vnd.ms-excel",
+                ".txt" => "text/plain",
+                _ => declaredContentType
+            };
+        }
+
+        private static bool IsSupportedByAI(string contentType)
+        {
+            return contentType.Contains("pdf", StringComparison.OrdinalIgnoreCase) ||
+                   contentType.Contains("word", StringComparison.OrdinalIgnoreCase) ||
+                   contentType.Contains("excel", StringComparison.OrdinalIgnoreCase) ||
+                   contentType.Contains("officedocument", StringComparison.OrdinalIgnoreCase) ||
+                   contentType.Contains("text/plain", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static DocumentType MapContentTypeToDocumentType(string contentType)
+        {
+            if (contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) return DocumentType.Image;
+            if (contentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase)) return DocumentType.Video;
+            if (IsSupportedByAI(contentType)) return DocumentType.File;
             return DocumentType.Unknown;
         }
     }

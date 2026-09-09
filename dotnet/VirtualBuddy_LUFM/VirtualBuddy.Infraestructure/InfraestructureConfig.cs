@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.SemanticKernel;
-using Microsoft.Data.SqlClient;
 using Npgsql;
 using System.Text;
 using VirtualBuddy.Application.Common.Interfaces;
@@ -20,6 +21,8 @@ namespace VirtualBuddy.Infraestructure
 {
     public static class InfraestructureConfig
     {
+        private const string AzureOpenAIDevelopmentHttpClient = "AzureOpenAIDevelopment";
+
         public static IServiceCollection AddInfraConfigureServices(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -115,12 +118,50 @@ namespace VirtualBuddy.Infraestructure
             });
             services.AddScoped<JwtSessionValidator>();
             services.AddSingleton(TimeProvider.System);
+            var embeddingSectionName = environmentName == "Local"
+                ? EmbeddingSettings.SectionName
+                : AzureOpenAISettings.SectionName;
+
             services.AddOptions<EmbeddingSettings>()
-                .Bind(configuration.GetSection(EmbeddingSettings.SectionName))
+                .Bind(configuration.GetSection(embeddingSectionName))
                 .Validate(
                     settings => settings.EmbeddingDimension is > 0 and <= EmbeddingSettings.MaximumAzureSqlDimensions,
-                    $"Ollama:EmbeddingDimension debe estar entre 1 y {EmbeddingSettings.MaximumAzureSqlDimensions}.")
+                    $"{embeddingSectionName}:EmbeddingDimension debe estar entre 1 y {EmbeddingSettings.MaximumAzureSqlDimensions}.")
                 .ValidateOnStart();
+
+            if (environmentName == "Development")
+            {
+                services.AddOptions<AzureOpenAISettings>()
+                    .Bind(configuration.GetSection(AzureOpenAISettings.SectionName))
+                    .Validate(settings =>
+                            Uri.TryCreate(settings.Endpoint, UriKind.Absolute, out var endpoint) &&
+                            endpoint.Scheme == Uri.UriSchemeHttps &&
+                            !string.IsNullOrWhiteSpace(settings.ApiKey) &&
+                            !string.IsNullOrWhiteSpace(settings.ChatDeploymentName) &&
+                            !string.IsNullOrWhiteSpace(settings.EmbeddingDeploymentName) &&
+                            settings.EmbeddingDimension == 768,
+                        "La configuracion de AzureOpenAI es incompleta o invalida.")
+                    .ValidateOnStart();
+
+                services.AddLogging();
+                services.AddSingleton<AzureOpenAIDevelopmentCertificateValidator>();
+                services.AddHttpClient(AzureOpenAIDevelopmentHttpClient, client =>
+                    {
+                        client.Timeout = TimeSpan.FromMinutes(10);
+                    })
+                    .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+                    {
+                        var validator = serviceProvider
+                            .GetRequiredService<AzureOpenAIDevelopmentCertificateValidator>();
+
+                        return new HttpClientHandler
+                        {
+                            AllowAutoRedirect = false,
+                            ServerCertificateCustomValidationCallback = validator.Validate
+                        };
+                    })
+                    .AddAsKeyed(ServiceLifetime.Scoped);
+            }
             services.AddOptions<PasswordRecoverySettings>()
                 .Bind(configuration.GetSection(PasswordRecoverySettings.SectionName))
                 .Validate(settings => settings.CodePepper?.Length >= 32,
@@ -154,31 +195,53 @@ namespace VirtualBuddy.Infraestructure
             services.AddScoped<IAIService, SemanticKernelAIService>();
 
 
-            // Semantic Kernel configuration with Ollama
-
-            services.AddHttpClient("ollama", client =>
+            if (environmentName == "Local")
             {
-                var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
-                client.BaseAddress = new Uri(ollamaEndpoint);
-                client.Timeout = TimeSpan.FromMinutes(10);
-            });
+                services.AddHttpClient("ollama", client =>
+                {
+                    var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
+                    client.BaseAddress = new Uri(ollamaEndpoint);
+                    client.Timeout = TimeSpan.FromMinutes(10);
+                });
+            }
 
             services.AddScoped(sp =>
             {
-
                 var builder = Kernel.CreateBuilder();
 
-                var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
+                if (environmentName == "Local")
+                {
+                    var ollamaEndpoint = configuration["Ollama:Endpoint"] ?? "http://localhost:11434";
 
-                builder.AddOllamaChatCompletion(
-                    modelId: configuration["Ollama:ChatModel"] ?? "llama3",
-                    endpoint: new Uri(ollamaEndpoint)
-                );
+                    builder.AddOllamaChatCompletion(
+                        modelId: configuration["Ollama:ChatModel"] ?? "llama3",
+                        endpoint: new Uri(ollamaEndpoint));
 
-                builder.AddOllamaEmbeddingGenerator(
-                    modelId: configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text",
-                    endpoint: new Uri(ollamaEndpoint)
-                );
+                    builder.AddOllamaEmbeddingGenerator(
+                        modelId: configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text",
+                        endpoint: new Uri(ollamaEndpoint));
+                }
+                else
+                {
+                    var settings = sp.GetRequiredService<IOptions<AzureOpenAISettings>>().Value;
+                    var httpClient = sp.GetRequiredKeyedService<HttpClient>(
+                        AzureOpenAIDevelopmentHttpClient);
+
+                    builder.AddAzureOpenAIChatCompletion(
+                        deploymentName: settings.ChatDeploymentName,
+                        endpoint: settings.Endpoint,
+                        apiKey: settings.ApiKey,
+                        httpClient: httpClient);
+
+#pragma warning disable SKEXP0010
+                    builder.AddAzureOpenAIEmbeddingGenerator(
+                        deploymentName: settings.EmbeddingDeploymentName,
+                        endpoint: settings.Endpoint,
+                        apiKey: settings.ApiKey,
+                        dimensions: settings.EmbeddingDimension,
+                        httpClient: httpClient);
+#pragma warning restore SKEXP0010
+                }
 
                 return builder.Build();
             });

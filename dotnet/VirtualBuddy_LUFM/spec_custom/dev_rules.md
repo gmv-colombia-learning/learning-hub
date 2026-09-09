@@ -40,6 +40,14 @@
 
 - Utilizar el mecanismo estándar de errores del proyecto.
 - No crear nuevos formatos de error si ya existe uno.
+- Priorizar el manejo y la observabilidad de excepciones en toda FEATURE, BUG, MODULE, IMPLEMENT o cambio técnico.
+- Toda excepción capturada debe propagarse hasta un límite que la registre, registrarse donde sea consumida o conservar su causa al traducirse. No se permiten excepciones silenciadas.
+- No agregar `try/catch` indiscriminadamente. Si una capa no puede recuperar el proceso, aportar contexto necesario o traducir el error, debe permitir que la excepción alcance el límite responsable.
+- Evitar registrar la misma excepción repetidamente en capas consecutivas. Registrar localmente cuando el error se consume, cuando se pierde contexto al traducirlo o cuando se necesita contexto operativo que el límite final no puede reconstruir.
+- Los procesos tolerantes a fallos deben mantener el comportamiento definido por su spec, pero siempre registrar de forma segura las excepciones que consuman.
+- Clasificar la severidad del log según el impacto: fallos esperados del cliente no deben ocultar los fallos operativos; los errores que impiden iniciar la aplicación deben registrarse como críticos y propagarse.
+- Incluir contexto útil y correlación disponible en los logs, sin registrar credenciales, tokens, contraseñas, códigos, cuerpos completos, contenido documental ni otros datos sensibles.
+- Al traducir una excepción técnica a un error seguro, preservar la causa como excepción interna o registrarla en el límite que conoce la integración, sin exponerla al cliente.
 
 ## Testing
 
@@ -52,6 +60,8 @@ Cada cambio debe considerar:
 - edge cases;
 - regresiones sobre comportamiento existente.
 - resiliencia y tolerante a fallos
+- observabilidad de cada excepción capturada, incluidos procesos secundarios, compensaciones e inicio de la aplicación.
+- ausencia de excepciones silenciadas, logs duplicados y datos sensibles en errores o registros.
 
 ## Existing patterns
 
