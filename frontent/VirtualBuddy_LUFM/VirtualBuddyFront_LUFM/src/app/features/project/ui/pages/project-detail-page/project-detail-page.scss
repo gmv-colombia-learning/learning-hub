@@ -22,6 +22,18 @@
   color: #b42318;
 }
 
+.project-tabs {
+  --mat-tab-header-active-label-text-color: #d92d20;
+  --mat-tab-header-active-focus-label-text-color: #b42318;
+  --mat-tab-header-active-hover-label-text-color: #b42318;
+  --mat-tab-header-active-indicator-color: #e8002d;
+  --mat-tab-header-inactive-label-text-color: #475467;
+}
+
+.tab-content {
+  padding-top: 1.25rem;
+}
+
 .project-hero {
   min-height: clamp(6.5rem, 15vw, 8rem);
   display: grid;

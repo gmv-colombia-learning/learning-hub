@@ -2,7 +2,7 @@
 
 ## Estado
 
-VERIFIED el 1 de septiembre de 2026. Aprobada mediante decisiones explicitas del usuario durante la solicitud de implementacion y actualizada para mostrar una imagen de respaldo cuando un proyecto no tenga una imagen disponible. La navegacion posterior al detalle esta definida por `project-detail.md`.
+VERIFIED el 9 de septiembre de 2026. Aprobada mediante decisiones explicitas del usuario durante la solicitud de implementacion y actualizada para mostrar una imagen de respaldo cuando un proyecto no tenga una imagen disponible. La navegacion posterior al detalle esta definida por `project-detail.md`.
 
 ## Intencion
 
@@ -99,6 +99,8 @@ interface ProjectDto {
 - El boton de reintento debe ser operable por teclado y tener foco visible.
 - Las imagenes deben usar el nombre del proyecto como texto alternativo.
 - La imagen de respaldo debe mostrarse centrada, con un tamano menor al area de imagen y sobre un fondo neutro sin color rojo.
+- Todas las tarjetas deben reservar la misma franja superior para la imagen. La imagen debe permanecer recortada dentro de esa franja, sin alterar la altura de la tarjeta ni superponerse con el nombre, la descripcion o el estado.
+- El contenido textual debe conservar una altura visual coherente entre tarjetas y truncar visualmente textos extensos antes de desbordar la tarjeta.
 - La cuadricula debe adaptarse sin desplazamiento horizontal desde 320 px: una columna en movil y varias cuando exista espacio suficiente.
 - No usar la imagen de referencia como asset de produccion ni agregar una libreria de iconos.
 
@@ -114,6 +116,7 @@ interface ProjectDto {
 8. El encabezado privado y el cierre de sesion conservan su comportamiento verificado.
 9. La pantalla funciona desde 320 px, sin desplazamiento horizontal y con estados accesibles.
 10. Un proyecto sin imagen disponible muestra `/sin-imagen.png` centrada, contenida sobre un fondo neutro y no presenta una imagen rota.
+11. Las tarjetas con imagen mantienen una franja de imagen uniforme y separan siempre la imagen del contenido textual, sin superposiciones ni cambios de tamano causados por las dimensiones originales del archivo.
 
 ## Verificacion
 

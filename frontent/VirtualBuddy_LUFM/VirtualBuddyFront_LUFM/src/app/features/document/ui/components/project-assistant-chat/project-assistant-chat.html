@@ -1,0 +1,68 @@
+<section class="assistant-card" aria-labelledby="assistant-title">
+  <header class="assistant-heading">
+    <span class="assistant-icon" aria-hidden="true">IA</span>
+    <span>
+      <h2 id="assistant-title">Consulta con IA</h2>
+      <p>Haz preguntas sobre el proyecto y obten respuestas basadas en su documentacion.</p>
+    </span>
+  </header>
+
+  <div class="conversation" aria-label="Conversacion con IA">
+    @if (turns().length) {
+      <ol class="message-list">
+        @for (turn of turns(); track turn.id) {
+          <li class="turn">
+            <div class="message message--user">
+              <strong>Tu pregunta</strong>
+              <p>{{ turn.question }}</p>
+            </div>
+
+            @switch (turn.status) {
+              @case ('pending') {
+                <div class="message message--assistant" role="status" aria-live="polite">
+                  <strong>Virtual Buddy</strong>
+                  <p>Consultando...</p>
+                </div>
+              }
+              @case ('success') {
+                <div class="message message--assistant">
+                  <strong>Virtual Buddy</strong>
+                  <p class="assistant-response">{{ turn.response }}</p>
+                </div>
+              }
+              @case ('error') {
+                <div class="message message--error" role="alert">
+                  <strong>No fue posible obtener una respuesta.</strong>
+                  <button matButton="outlined" type="button" (click)="retry(turn)">
+                    Reintentar
+                  </button>
+                </div>
+              }
+            }
+          </li>
+        }
+      </ol>
+    } @else {
+      <div class="empty-conversation">
+        <span aria-hidden="true">?</span>
+        <p>Escribe una pregunta para comenzar la consulta.</p>
+      </div>
+    }
+  </div>
+
+  <form class="question-form" (submit)="submit($event)">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Pregunta sobre el proyecto</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        [formControl]="questionControl"
+        placeholder="Escribe tu pregunta sobre el proyecto..."
+      />
+    </mat-form-field>
+    <button matButton="filled" type="submit" aria-label="Enviar pregunta" [disabled]="!canSend()">
+      Enviar
+    </button>
+  </form>
+</section>

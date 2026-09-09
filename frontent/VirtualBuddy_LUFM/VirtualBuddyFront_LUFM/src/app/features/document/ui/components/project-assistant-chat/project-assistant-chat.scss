@@ -1,0 +1,180 @@
+:host {
+  display: block;
+}
+
+.assistant-card {
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  border-radius: 0.9rem;
+  background: white;
+  box-shadow: 0 0.15rem 0.35rem rgb(16 24 40 / 7%);
+}
+
+.assistant-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1.25rem clamp(1rem, 4vw, 1.5rem);
+  border-bottom: 1px solid #eaecf0;
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: #101828;
+    font-size: 1.05rem;
+  }
+
+  p {
+    margin-top: 0.25rem;
+    color: #667085;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+}
+
+.assistant-icon {
+  width: 2.3rem;
+  height: 2.3rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: #e8002d;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.conversation {
+  min-height: 20rem;
+  max-height: 34rem;
+  overflow-y: auto;
+  padding: clamp(1rem, 4vw, 1.5rem);
+  background: #f9fafb;
+}
+
+.message-list {
+  display: grid;
+  gap: 1.25rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.turn {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.message {
+  width: min(88%, 36rem);
+  padding: 0.85rem 1rem;
+  border-radius: 0.8rem;
+
+  strong {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #344054;
+    font-size: 0.75rem;
+  }
+
+  p {
+    margin: 0;
+    color: #344054;
+    line-height: 1.55;
+  }
+}
+
+.message--user {
+  justify-self: end;
+  border-bottom-right-radius: 0.2rem;
+  background: #fee4e2;
+}
+
+.message--assistant {
+  justify-self: start;
+  border-bottom-left-radius: 0.2rem;
+  background: #eaf2ff;
+}
+
+.assistant-response {
+  white-space: pre-wrap;
+}
+
+.message--error {
+  justify-self: start;
+  border: 1px solid #fecdca;
+  background: #fffbfa;
+
+  button {
+    margin-top: 0.35rem;
+  }
+}
+
+.empty-conversation {
+  min-height: 17rem;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+  color: #667085;
+  text-align: center;
+
+  span {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #b42318;
+    background: #fee4e2;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.question-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-top: 1px solid #eaecf0;
+
+  mat-form-field {
+    min-width: 0;
+  }
+
+  button {
+    min-height: 3rem;
+  }
+}
+
+button:focus-visible {
+  outline: 0.2rem solid #fda29b;
+  outline-offset: 0.15rem;
+}
+
+@media (max-width: 30rem) {
+  .conversation {
+    min-height: 17rem;
+  }
+
+  .message {
+    width: 94%;
+  }
+
+  .question-form {
+    grid-template-columns: 1fr;
+
+    button {
+      width: 100%;
+    }
+  }
+}

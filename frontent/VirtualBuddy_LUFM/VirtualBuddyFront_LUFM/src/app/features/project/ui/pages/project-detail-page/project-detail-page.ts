@@ -1,12 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
+import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
+import { ProjectAssistantChat } from '../../../../document/project-assistant-chat';
 import { GetProjectDetailsUseCase } from '../../../application/get-project-details.use-case';
 import { ProjectNotFoundError } from '../../../application/project-query.error';
 import { formatDevelopmentDuration } from '../../../domain/development-duration';
 import { ProjectDetails } from '../../../domain/project-details';
+import { ProjectAiSummary } from '../../components/project-ai-summary/project-ai-summary';
 import { projectStatusClass, projectStatusLabel } from '../../project-status.presentation';
 
 type ProjectDetailState =
@@ -17,7 +20,7 @@ type ProjectDetailState =
 
 @Component({
   selector: 'app-project-detail-page',
-  imports: [MatButton, RouterLink],
+  imports: [MatButton, MatTab, MatTabGroup, ProjectAiSummary, ProjectAssistantChat, RouterLink],
   templateUrl: './project-detail-page.html',
   styleUrl: './project-detail-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

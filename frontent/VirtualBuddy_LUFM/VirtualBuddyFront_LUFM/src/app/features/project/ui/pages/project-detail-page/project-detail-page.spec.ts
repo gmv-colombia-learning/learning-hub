@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
+import { AskProjectAssistantUseCase } from '../../../../document/application/ask-project-assistant.use-case';
 import { GetProjectDetailsUseCase } from '../../../application/get-project-details.use-case';
 import { ProjectNotFoundError } from '../../../application/project-query.error';
 import { ProjectDetails } from '../../../domain/project-details';
@@ -10,15 +11,18 @@ import { ProjectDetailPage } from './project-detail-page';
 describe('ProjectDetailPage', () => {
   let fixture: ComponentFixture<ProjectDetailPage>;
   let getProjectDetails: { execute: ReturnType<typeof vi.fn> };
+  let askProjectAssistant: { execute: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     getProjectDetails = { execute: vi.fn(() => of(projectDetails())) };
+    askProjectAssistant = { execute: vi.fn(() => of('Assistant response')) };
 
     await TestBed.configureTestingModule({
       imports: [ProjectDetailPage],
       providers: [
         provideRouter([]),
         { provide: GetProjectDetailsUseCase, useValue: getProjectDetails },
+        { provide: AskProjectAssistantUseCase, useValue: askProjectAssistant },
         {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ id: 'project-1' })) },
@@ -45,7 +49,45 @@ describe('ProjectDetailPage', () => {
     const members = fixture.nativeElement.querySelectorAll('.member-list li');
     expect(members[0].textContent).toContain('Maria Gonzalez');
     expect(members[1].textContent).toContain('Carlos Ruiz');
-    expect(fixture.nativeElement.textContent).not.toContain('Consulta con IA');
+    const tabs = fixture.nativeElement.querySelectorAll('[role="tab"]');
+    expect(tabs).toHaveLength(2);
+    expect(tabs[0].textContent).toContain('Detalle del Proyecto');
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    expect(tabs[1].textContent).toContain('Consultar con IA');
+    expect(fixture.nativeElement.textContent).toContain('Resumen generado por IA');
+    expect(fixture.nativeElement.textContent).toContain('Contenido demostrativo');
+    expect(askProjectAssistant.execute).not.toHaveBeenCalled();
+  });
+
+  it('keeps the assistant history when changing tabs', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const tabs: NodeListOf<HTMLButtonElement> =
+      fixture.nativeElement.querySelectorAll('[role="tab"]');
+    tabs[1].click();
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      'app-project-assistant-chat input',
+    );
+    input.value = 'Project question';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    fixture.nativeElement
+      .querySelector('app-project-assistant-chat form')
+      .dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Assistant response');
+
+    tabs[0].click();
+    fixture.detectChanges();
+    tabs[1].click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Project question');
+    expect(fixture.nativeElement.textContent).toContain('Assistant response');
   });
 
   it('announces loading while the detail request is pending', () => {

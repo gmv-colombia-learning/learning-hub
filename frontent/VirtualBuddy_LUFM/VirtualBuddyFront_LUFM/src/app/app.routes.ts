@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { PROJECT_ASSISTANT_PROVIDERS } from './features/document/project-assistant.providers';
 import { PROJECT_PROVIDERS } from './features/project/project.providers';
 import { authGuard } from './features/user/infrastructure/auth.guard';
 
@@ -26,7 +27,7 @@ export const routes: Routes = [
       },
       {
         path: 'projects/:id',
-        providers: PROJECT_PROVIDERS,
+        providers: [...PROJECT_PROVIDERS, ...PROJECT_ASSISTANT_PROVIDERS],
         loadComponent: () =>
           import('./features/project/ui/pages/project-detail-page/project-detail-page').then(
             (component) => component.ProjectDetailPage,
