@@ -124,3 +124,4 @@ _ReSharper*/
 /dotnet/VirtualBuddy_LUFM/*.md
 /dotnet/VirtualBuddy_LUFM/GEMINI.md
 /dotnet/VirtualBuddy_LUFM/VirtualBuddy.Api/password-recovery.settings.example.json
+/dotnet/VirtualBuddy_LUFM/VirtualBuddy.Api/appsettings.Development.json
