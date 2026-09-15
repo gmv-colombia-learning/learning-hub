@@ -1,9 +1,9 @@
 import { environment } from '../../../environments/environment.local';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { RESTCountry } from '../interface/rest-countries.interfaces';
+import type { RESTCountry } from '../interface/rest-countries.interfaces';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { Country } from '../interface/country.interface';
+import type { Country } from '../interface/country.interface';
 import { CountryMapper } from '../mappers/country.mapper';
 
 
@@ -44,9 +44,7 @@ export class CountryService {
 
         return CountryMapper.mapRestCountryArrayToCountryArray(countries);
       }),
-      catchError((error) => {
-        console.error('Error fetching countries by capital:', error);
-        
+      catchError(() => {
         return throwError (
           () => new Error(`No se pudo obtener países con ese query ${query}`)
         )
@@ -73,9 +71,7 @@ export class CountryService {
 
         return CountryMapper.mapRestCountryArrayToCountryArray(countries);
       }),
-      catchError((error) => {
-        console.error('Error fetching countries by name:', error);
-        
+      catchError(() => {
         return throwError (
           () => new Error(`No se pudo obtener países con ese query ${query}`)
         )
