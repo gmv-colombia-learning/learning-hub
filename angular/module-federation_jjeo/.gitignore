@@ -40,3 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Token local de REST Countries
+/projects/mfe-country-app/src/environments/environment.local.ts

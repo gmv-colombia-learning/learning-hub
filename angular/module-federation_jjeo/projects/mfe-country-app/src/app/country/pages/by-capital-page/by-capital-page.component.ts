@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { SearchInputComponent } from '../../components/search-input/search-input.component';
 import { CountryListComponent } from '../../components/country-list/country-list.component';
 import { CountryService } from '../../services/country.service';
-import { RESTCountry, Object } from '../../interface/rest-countries.interfaces';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-by-capital-page',
@@ -12,31 +12,17 @@ import { RESTCountry, Object } from '../../interface/rest-countries.interfaces';
 export class ByCapitalPageComponent {
 
   countryService = inject(CountryService);
+  query = signal('');
 
-  isLoading = signal(false);
-  isError = signal<string|null>(null);
-  // countries = signal<RESTCountry[]>([]);
-  countries = signal<Object[]>([]);
+  countryResource = resource({ //basado en promesas
+    params: () => ({ query: this.query().trim() }),
+    defaultValue: [],
+    loader: async ({ params }) => {
+      if (!params.query) return [];
 
-
-  onSearch(query: string) {
-    if (this.isLoading()) return;
-
-    this.isLoading.set(true);
-    this.isError.set(null);
-    
-    this.countryService.searchByCapital(query)
-    .subscribe({
-      next: (response) => {
-        console.log({ response });
-        this.countries.set(response.data.objects);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error({ error });
-        this.isError.set(error.message);
-        this.isLoading.set(false);
-      }
-    });
-  }
+      return await firstValueFrom(
+        this.countryService.searchByCapital(params.query)
+      );
+    },
+  });
 }

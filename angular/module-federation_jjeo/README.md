@@ -27,18 +27,44 @@ projects/
   mfe-country-app/  # Microfrontend de países
 ```
 
-## Desarrollo local
+## Token local de REST Countries
 
-Levantar el shell:
+El servicio lee `restCountriesAuthorization` desde
+`projects/mfe-country-app/src/environments/environment.local.ts`, ignorado por Git.
+El archivo ya esta configurado en este equipo. Si vuelves a clonar el repositorio,
+crealo con esta estructura y tu valor de Authorization:
 
-```bash
-ng serve shell
+```typescript
+export const environment = {
+  restCountriesAuthorization: 'Bearer TU_TOKEN',
+};
 ```
 
-Levantar el microfrontend:
+Este archivo es necesario para ejecutar o compilar el microfrontend. El token
+seguira siendo visible en el navegador; esta configuracion evita subirlo a Git.
+
+## Desarrollo local
+
+Desde esta carpeta, levantar ambas aplicaciones en una sola terminal:
 
 ```bash
-ng serve mfe-country-app --port 4201
+npm start
+```
+
+El script usa `concurrently` para ejecutar el shell en `http://localhost:4200/` y el
+microfrontend en `http://localhost:4201/`. Con `Ctrl+C` se detienen ambos procesos.
+Los comandos se configuran en la sección `scripts` de `package.json`.
+
+Levantar solo el shell:
+
+```bash
+npm run start:shell
+```
+
+Levantar solo el microfrontend:
+
+```bash
+npm run start:country
 ```
 
 Por defecto, Angular usa `http://localhost:4200/` para la aplicación principal. Si se ejecutan
