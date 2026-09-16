@@ -12,14 +12,19 @@ module.exports = withNativeFederation({
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
   },
 
-  skip: [
-    'rxjs/ajax',
-    'rxjs/fetch',
-    'rxjs/testing',
-    'rxjs/webSocket',
-  ],
+skip: [
+  'rxjs/ajax',
+  'rxjs/fetch',
+  'rxjs/testing',
+  'rxjs/webSocket',
+
+  // Herramientas de compilación: no se comparten con el navegador.
+  /^@tailwindcss\//,
+  /^tailwindcss(?:\/|$)/,
+  /^postcss(?:\/|$)/,
+],
 
   features: {
-    ignoreUnusedDeps: true
+    ignoreUnusedDeps: false
   }
 });
