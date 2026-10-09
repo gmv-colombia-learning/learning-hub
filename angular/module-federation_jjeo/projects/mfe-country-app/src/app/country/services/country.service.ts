@@ -2,9 +2,10 @@ import { environment } from '../../../environments/environment.local';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type { RESTCountry } from '../interface/rest-countries.interfaces';
-import { catchError, delay, map, Observable, throwError } from 'rxjs';
+import { catchError, delay, map, Observable, of, throwError } from 'rxjs';
 import type { Country } from '../interface/country.interface';
 import { CountryMapper } from '../mappers/country.mapper';
+import type { Region } from '../interface/region.type';
 
 
 const API_URL = 'https://api.restcountries.com/countries/v5'
@@ -76,6 +77,22 @@ export class CountryService {
           () => new Error(`No se pudo obtener países con ese query ${query}`)
         )
       })
+    );
+  }
+
+  searchByRegion(region: Region): Observable<Country[]> {
+    return this.http.get<RESTCountry>(API_URL, {
+      headers: this.headers,
+      params: { region, limit: 100 },
+    }).pipe(
+      map((response) =>
+        CountryMapper.mapRestCountryArrayToCountryArray(response.data.objects)
+      ),
+      catchError(() =>
+        throwError(
+          () => new Error(`No se pudieron obtener los países de la región "${region}".`)
+        )
+      )
     );
   }
 
