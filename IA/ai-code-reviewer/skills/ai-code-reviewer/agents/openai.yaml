@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Code Reviewer"
+  short_description: "Revisa PRs: calidad, seguridad y contexto visual opcional"
+  default_prompt: "Usa $ai-code-reviewer para revisar esta PR contra sus requisitos, code smells, seguridad y pruebas."
