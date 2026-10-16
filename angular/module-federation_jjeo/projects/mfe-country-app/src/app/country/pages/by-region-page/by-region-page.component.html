@@ -1,0 +1,28 @@
+<h1 class="text-2xl">Por región</h1>
+<h3 class="text-lg">Seleccione una región</h3>
+
+<section class="flex flex-wrap gap-2 mt-2" aria-label="Regiones">
+  @for (region of regions; track region.value) {
+    <button
+      type="button"
+      class="btn btn-outline"
+      [class.btn-primary]="selectedRegion() === region.value"
+      [attr.aria-pressed]="selectedRegion() === region.value"
+      (click)="selectedRegion.set(region.value)"
+    >
+      {{ region.label }}
+    </button>
+  }
+</section>
+
+<country-list
+  [countries]="countryResource.error() ? [] : countryResource.value()"
+  [errorMessage]="countryResource.error()?.message"
+  [isLoading]="countryResource.isLoading()"
+  [isEmpty]="
+    selectedRegion() !== null &&
+    !countryResource.isLoading() &&
+    !countryResource.error() &&
+    countryResource.value().length === 0
+  "
+/>
